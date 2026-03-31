@@ -1,0 +1,50 @@
+{
+  "name": "Amy Kang",
+  "social": [
+    { "type": "github",   "label": "aziqikang",         "url": "https://github.com/aziqikang" },
+    { "type": "linkedin", "label": "amyzkang",          "url": "https://linkedin.com/in/amyzkang" },
+    { "type": "email",    "label": "aziqikang@gmail.com","url": "mailto:aziqikang@gmail.com" }
+  ],
+  "bio": [
+    "Hi! My name is Amy, and I study Math and Computer Science at Purdue University.",
+    "This page is a just snippet of who I am. Thanks for visiting!! (˶ᵔ ᵕ ᵔ˶)"
+  ],
+  "sections": [
+    {
+      "id": "work",
+      "title": "WORK",
+      "entries": [
+        { "date": "Summer 2026",            "title": "SWE Intern @ Meta",    "subtitle": "Incoming" },
+        { "date": "Summer 2025",            "title": "SWE Intern @ Amazon",  "subtitle": "Sustainable Shipping Incentives" },
+        { "date": "Summer 2024",            "title": "SWE Intern @ QueryStar","subtitle": "Computer Vision Video Pipelines" }
+      ]
+    },
+    {
+      "id": "teaching",
+      "title": "TEACHING",
+      "entries": [
+        { "date": "Fall 2025 – Present",    "title": "Teaching Assistant",      "subtitle": "CS 381 Algorithms" },
+        { "date": "Spring 2025",            "title": "Head Teaching Assistant", "subtitle": "MA 366 Differential Equations" },
+        { "date": "Spring 2024 – Fall 2025","title": "Teaching Assistant",      "subtitle": "MA 366 Differential Equations" }
+      ]
+    },
+    {
+      "id": "research",
+      "title": "RESEARCH",
+      "entries": [
+        {
+          "date": "Spring 2026",
+          "title": "Elliptic Curve & Applications to Cryptography",
+          "subtitle": "more details to come!",
+          "link": "https://amykang.me/projects/ecc"
+        },
+        {
+          "date": "Fall 2024 – Spring 2025",
+          "title": "Modeling Elastic Cells in Microfluidic Conditions",
+          "subtitle": "more details to come!"
+        }
+      ]
+    }
+  ],
+  "artLink": "https://art.amykang.me"
+}

@@ -1,0 +1,14 @@
+{
+  "_note": "Edit 'title', 'links', and 'body' to update this project page. 'body' is an array of paragraphs. 'links' types: 'github' or 'link'.",
+  "title": "Elliptic Curve Cryptography (ECC)",
+  "backUrl": "https://amykang.me",
+  "links": [
+    { "type": "github", "label": "github.com/aziqikang/ecc-sim", "url": "https://github.com/aziqikang/ecc-sim" },
+    { "type": "link",   "label": "project demo",                 "url": "#" }
+  ],
+  "body": [
+    "Elliptic curve cryptography (ECC) is a form of public-key cryptography based on the algebraic structure of elliptic curves over finite fields. ECC allows for smaller key sizes compared to non-EC cryptography (based on plain Galois fields) while providing an equivalent level of security.",
+    "This project explores the mathematical foundations of ECC — including point addition, scalar multiplication, and the discrete logarithm problem over elliptic curves — and implements a simulator that demonstrates key exchange and digital signatures using standard curves.",
+    "More details to come!"
+  ]
+}
