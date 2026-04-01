@@ -45,7 +45,10 @@ async function init() {
       div.className = 'entry';
 
       const subtitleHtml = entry.subtitle
-        ? `<span class="entry-subtitle">${entry.subtitle}</span>` : '';
+        ? entry.subtitleLink
+          ? `<a class="entry-subtitle" href="${entry.subtitleLink}">${entry.subtitle}</a>`
+          : `<span class="entry-subtitle">${entry.subtitle}</span>`
+        : '';
 
       const titleInner = entry.link
         ? `<a class="entry-link" href="${entry.link}">${entry.title}</a>${subtitleHtml}`

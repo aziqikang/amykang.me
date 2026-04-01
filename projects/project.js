@@ -8,7 +8,14 @@ async function init() {
   const res = await fetch('data/project.json');
   const data = await res.json();
 
-  document.title = `${data.title} – Amy Kang`;
+  document.title = `${data.tabTitle ?? data.title} – Amy Kang`;
+
+  // Favicon
+  const icon = data.icon ?? '★';
+  const favicon = document.createElement('link');
+  favicon.rel = 'icon';
+  favicon.href = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>${icon}</text></svg>`;
+  document.head.appendChild(favicon);
 
   // Back link
   document.getElementById('back-link').href = data.backUrl ?? 'https://amykang.me';
@@ -24,13 +31,21 @@ async function init() {
     linksEl.appendChild(li);
   });
 
-  // Body paragraphs — stored as an array of strings in JSON
+  // Body — items are either strings (→ <p>) or objects { tag, text/html }
   const bodyEl = document.getElementById('project-body');
-  (data.body ?? []).forEach(para => {
-    const p = document.createElement('p');
-    p.textContent = para;
-    bodyEl.appendChild(p);
+  (data.body ?? []).forEach(item => {
+    if (typeof item === 'string') {
+      const p = document.createElement('p');
+      p.innerHTML = item;
+      bodyEl.appendChild(p);
+    } else {
+      const el = document.createElement(item.tag ?? 'p');
+      el.innerHTML = item.html ?? item.text ?? '';
+      bodyEl.appendChild(el);
+    }
   });
 }
 
-init().catch(err => console.error('Failed to load project data:', err));
+init()
+  .then(() => document.dispatchEvent(new Event('project-loaded')))
+  .catch(err => console.error('Failed to load project data:', err));

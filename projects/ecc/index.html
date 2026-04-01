@@ -9,6 +9,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Lexend+Mega:wght@100;200;300;400&display=swap" rel="stylesheet">
   <!-- Shared project styles — one level up -->
   <link rel="stylesheet" href="../project.css">
+  <!-- KaTeX for math rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="document.addEventListener('project-loaded', () => renderMathInElement(document.getElementById('project-body'), { delimiters: [{left:'\\(', right:'\\)', display:false},{left:'\\[', right:'\\]', display:true}] }))"></script>
 </head>
 <body id="top">
 
