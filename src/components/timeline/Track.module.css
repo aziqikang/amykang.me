@@ -1,0 +1,170 @@
+/* ── Filters ────────────────────────────────────────────  */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-7);
+}
+
+/* Flat pills: solid fill, no border, no shadow. */
+.filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.95rem;
+  border-radius: var(--radius-pill);
+  background: var(--glaze);
+  font-size: var(--text-xs);
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+  transition:
+    background var(--dur-fast) var(--ease-soft),
+    color var(--dur-fast) var(--ease-soft),
+    transform var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out);
+}
+
+/* Emoji carry their own colour, so they ignore the chip's --chip tint
+   and stay legible in both themes. line-height 1 keeps the taller glyphs
+   from stretching the pill. */
+.chipEmoji {
+  font-size: 1.05em;
+  line-height: 1;
+}
+
+.filter:hover {
+  transform: scale(1.04);
+  color: var(--ink);
+  background: var(--glaze-pale);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--chip) 26%, transparent);
+}
+
+.filterActive {
+  background: var(--glaze-pale);
+  color: var(--chip);
+  box-shadow:
+    0 0 0 5px color-mix(in srgb, var(--chip) 10%, transparent),
+    0 0 18px color-mix(in srgb, var(--chip) 24%, transparent);
+}
+
+/* ── Track ──────────────────────────────────────────────  */
+.track {
+  position: relative;
+}
+
+/* One continuous spine behind every row, fading at both ends so it has
+   a start and a tail rather than running off into the margins. */
+.track::before {
+  content: '';
+  position: absolute;
+  left: calc(8.5rem + 1.25rem - 1px);
+  top: 2.2rem;
+  bottom: 3.5rem;
+  width: 2px;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    var(--glaze-edge) 3%,
+    var(--glaze-edge) 90%,
+    transparent 100%
+  );
+}
+
+/* Scroll-open needs road left after the last card reaches the reading
+   line. Without it the page simply runs out of scroll first: measured on
+   the real page, the final three entries stopped 1px, 139px and 377px
+   short of the line and so could never open at all.
+
+   The tail is the gap between the line and the bottom of the viewport,
+   less one collapsed card AND the footer — both of which already sit below
+   the last row and count toward the same requirement.
+
+   Trimmed to the minimum that still works, so the footer is not pushed
+   needlessly far down the home page.
+
+   MEASURE THE MARGIN WITH THE LAST CARD CLOSED. An open card makes the
+   document taller by its detail height, which inflates the apparent slack
+   by ~270px and tempts you to cut that much more — but the closed state is
+   the one that matters, because the card has to reach the line in order to
+   open at all. At 1017px tall this leaves ~70px of margin closed; cutting
+   further strands the final entry, which is the bug this exists to fix.
+
+   Only in scroll-open mode — on touch this would be half a screen of dead
+   space for no benefit.
+
+   It does not read as empty in use: the last card comes to rest at the
+   reading line like every other one, rather than jammed against the
+   bottom of the screen. */
+.track[data-scroll-open] {
+  padding-bottom: calc(62vh - 18rem);
+}
+
+/* Load bearing: the browser's native scroll anchoring corrects for
+   off-screen height changes too, and it would apply its adjustment on top
+   of the one useTimelineScroll makes — doubling every correction. */
+.list {
+  overflow-anchor: none;
+  display: block;
+}
+
+/* ── Year marker ────────────────────────────────────────  */
+.year {
+  display: grid;
+  grid-template-columns: 8.5rem 2.5rem 1fr;
+  align-items: center;
+  margin: var(--space-6) 0 var(--space-4);
+}
+
+.yearLabel {
+  grid-column: 1;
+  text-align: right;
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  letter-spacing: 0.06em;
+  color: var(--ink-faint);
+}
+
+.yearRule {
+  grid-column: 3;
+  height: 1px;
+  background: linear-gradient(to right, var(--glaze-edge), transparent 60%);
+}
+
+/* With no rows there is nothing for the spine to thread, and it was
+   left hanging beside the empty-state line as a stray stub. */
+.trackEmpty::before {
+  display: none;
+}
+
+.empty {
+  padding: var(--space-7) 0;
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+@media (max-width: 44rem) {
+  .track::before {
+    left: calc(0.875rem - 1px);
+  }
+
+  .year {
+    grid-template-columns: 1.75rem 1fr;
+    margin: var(--space-5) 0 var(--space-3);
+  }
+
+  /* Column 2, not 1 — column 1 is the spine gutter, and a left-aligned
+     year there would sit on top of the line. */
+  .yearLabel {
+    grid-column: 2;
+    text-align: left;
+    /* Must stay at or above 25px. --ink-faint is a large-text-only
+       colour (3.3:1); at the --text-lg used here previously the year
+       fell under the 24px large-text threshold and became a genuine
+       contrast failure. */
+    font-size: 1.5625rem;
+  }
+
+  .yearRule {
+    display: none;
+  }
+}

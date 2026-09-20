@@ -1,0 +1,125 @@
+/* Registered so it can be TRANSITIONED. A plain custom property is just a
+   string to the engine and jumps between values; declaring its syntax makes
+   it a real animatable percentage. Where @property is unsupported the
+   transition is simply skipped and the photos swap instantly, which is a
+   fine floor. Inherited on purpose: the frame animates it, the masked image
+   reads it. */
+@property --portrait-bloom {
+  syntax: '<percentage>';
+  inherits: true;
+  initial-value: 0%;
+}
+
+/* A circle. This replaced an asymmetric "thrown pot" silhouette built from
+   a four-value border-radius — that shape read as organic next to the
+   pottery palette, but it fought the star mark and the round nav pills for
+   attention, and it cropped differently at every width because the radius
+   was proportional. A circle is stable at any size. */
+.frame {
+  position: relative;
+  width: var(--size);
+  /* Square box + 50% radius, so the circle survives whatever proportions
+     each source photo has. */
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--clay-deep);
+
+  /* Where the bloom starts. Overwritten per-hover from the pointer; the
+     centre is only the fallback for a keyboard or touch arrival. */
+  --px: 50%;
+  --py: 50%;
+  --portrait-bloom: 0%;
+
+  /* The soft edge is the gap between the opaque stop and the transparent
+     one — 16% of the gradient ray, so it reads as liquid soaking through
+     rather than as an iris shutter. Stops are percentages of the ray to the
+     farthest corner, so 118% always covers the frame no matter which edge
+     the pointer came in at. */
+  --bloom: radial-gradient(
+    circle at var(--px) var(--py),
+    #000 calc(var(--portrait-bloom) - 16%),
+    transparent var(--portrait-bloom)
+  );
+
+  transition: --portrait-bloom var(--dur-slow) var(--ease-soft);
+}
+
+.frame:hover {
+  --portrait-bloom: 118%;
+}
+
+.layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  /* cover, so the circle is always filled. object-position comes from the
+     content — the two photos are framed completely differently and each
+     needs its own, or one of them lands off-centre in the same circle. */
+  object-fit: cover;
+}
+
+/* ── Which photo is on top ──────────────────────────────
+   Light is the default, so the daylight close-up is the resting state and
+   the dusk photo blooms in over it. Dark mode swaps the roles. Done in CSS
+   off data-theme rather than in JS so it follows the theme instantly, with
+   no flash on first paint and nothing to keep in sync. */
+.daylight {
+  z-index: 0;
+}
+
+.dusk {
+  z-index: 1;
+  -webkit-mask-image: var(--bloom);
+  mask-image: var(--bloom);
+}
+
+:global([data-theme='dark']) .daylight {
+  z-index: 1;
+  -webkit-mask-image: var(--bloom);
+  mask-image: var(--bloom);
+}
+
+:global([data-theme='dark']) .dusk {
+  z-index: 0;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+/* The contact page's pair: no mask and no hover, just one per theme. The
+   opposite assignment to the home page — dusk while it is light out, the
+   daylight close-up once the page goes dark. */
+.soloDusk {
+  z-index: 1;
+}
+
+.soloDay {
+  z-index: 0;
+}
+
+:global([data-theme='dark']) .soloDusk {
+  z-index: 0;
+}
+
+:global([data-theme='dark']) .soloDay {
+  z-index: 1;
+}
+
+/* Shown only if a photo is missing, so the page never renders a
+   broken-image icon. */
+.fallback {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(160deg, var(--glaze-pale), var(--glaze-edge));
+}
+
+/* The swap still happens — it is information, not decoration — it just
+   arrives without the spreading motion. */
+@media (prefers-reduced-motion: reduce) {
+  .frame {
+    transition: none;
+  }
+}

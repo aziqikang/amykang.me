@@ -1,0 +1,60 @@
+.glow {
+  /* Overridable per instance so a timeline card blooms in its own
+     category colour. See Glow.tsx. */
+  --halo-tint: var(--sea);
+  --glow-radius: var(--radius-lg);
+  --glow-scale: 1.018;
+
+  position: relative;
+  /* MUST match the radius of the child card. When these disagreed the
+     halo traced a different outline than the thing it was haloing, which
+     made the hover read as smeared rather than lit. */
+  border-radius: var(--glow-radius);
+
+  transition: transform var(--dur-base) var(--ease-out);
+  will-change: transform;
+}
+
+/* The bloom, painted behind the card so it can spread outwards without
+   the card's own background clipping it.
+   Deliberately shadow-only — no 1px ring. A crisp ring reads as an
+   outline drawn around the card; this should read as the card lighting
+   up from underneath. */
+.glow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  opacity: 0;
+  box-shadow:
+    0 0 0 6px color-mix(in srgb, var(--halo-tint) 12%, transparent),
+    0 0 22px color-mix(in srgb, var(--halo-tint) 34%, transparent),
+    0 0 52px color-mix(in srgb, var(--halo-tint) 20%, transparent);
+  transition: opacity var(--dur-base) var(--ease-out);
+}
+
+/* :has(:focus-visible), NOT :focus-within.
+   :focus-within matches however focus arrived, so clicking a card's
+   expand button left it focused and the card stayed lit after the
+   pointer moved away — until you clicked somewhere else. :focus-visible
+   is only matched when the browser judges focus should be shown, which
+   excludes mouse clicks, so keyboard users still get the affordance and
+   mouse users do not get a stuck highlight. */
+.glow:hover,
+.glow:has(:focus-visible) {
+  transform: scale(var(--glow-scale));
+}
+
+.glow:hover::before,
+.glow:has(:focus-visible)::before {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow:hover,
+  .glow:has(:focus-visible) {
+    /* Keep the light — it is information about focus. Drop the movement. */
+    transform: none;
+  }
+}

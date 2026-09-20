@@ -1,0 +1,9 @@
+node_modules/
+dist/
+*.local
+.DS_Store
+
+# Full-resolution painting originals. Only the compressed .webp files in
+# public/art/ are committed — the originals are ~60MB and would bloat the
+# repo permanently. Keep this folder backed up locally.
+art-src/

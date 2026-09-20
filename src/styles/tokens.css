@@ -1,0 +1,224 @@
+/* ============================================================
+   Design tokens — speckled stoneware with a blue-green glaze pour.
+
+   Taken from the mug: a warm speckled clay body for the ground,
+   a pale blue-green glaze for every widget sitting on it, rust
+   at the rim, and periwinkle where the glaze breaks. The widgets
+   are deliberately LIGHTER than the ground — that inversion is
+   what makes them read as glaze pooled on top of raw clay.
+
+   Contrast ratios are quoted against whichever surface the
+   colour actually sits on. Anything marked DECORATIVE fails
+   4.5:1 and must never carry body copy.
+   ============================================================ */
+
+:root {
+  /* ── Clay body — the ground ─────────────────────────────  */
+  --clay-deep:  #B8AE9C;  /* wells, image mattes           */
+  --clay:       #D2CBBC;  /* page ground                   */
+
+  /* ── Glaze — every widget ───────────────────────────────
+     Lighter than the clay. --glaze-mid is the colour Amy
+     picked; the card gradient runs pale → mid so each widget
+     reads as a pour rather than a flat fill.                 */
+  --glaze-pale: #D8ECE9;
+  --glaze:      #C6E0DC;
+  --glaze-mid:  #BCD9D6;
+  --glaze-edge: #9BC5C3;  /* borders, rims                 */
+
+  /* ── Drips ──────────────────────────────────────────────
+     Where the glaze breaks at the rim and runs.             */
+  --periwinkle: #AEB6DA;
+  --lavender:   #C4B4D4;
+  --rust:       #A65A33;  /* DECORATIVE — rim, fills only  */
+
+  /* ── Ink — the speckle colour ───────────────────────────  */
+  --ink:       #3A332B;  /* 7.7:1 on clay, 8.9:1 on glaze   */
+  /* Darkened from #5A5244 (4.8:1). The glaze field now shifts the
+     ground's lightness a little as it drifts, so the nominal ratio needs
+     headroom rather than sitting a whisker above the 4.5 line. */
+  --ink-soft:  #524A3D;  /* 5.4:1 on clay, 6.2:1 on glaze   */
+  --ink-faint: #726A5A;  /* 3.3:1 on clay — LARGE TEXT ONLY */
+
+  /* ── Kind accents ───────────────────────────────────────
+     Drawn from the mug's rim and drips, darkened until each is
+     text-safe against the CLAY ground — not just against the
+     lighter glaze card. The status labels ("current",
+     "ongoing") sit out on the date rail with no card behind
+     them, so clay is the binding constraint. Ratios below are
+     against clay; on a card every one is higher.
+
+     A more saturated cut of these was tried and reverted. The
+     accents themselves were fine, but the same pass brightened
+     --glaze-pale and re-tinted --glaze-edge / --periwinkle /
+     --lavender, and those three are what the sparkles in
+     GlazeField are coloured with: pale marks on a background
+     that had been lightened under them, so they washed out and
+     read as missing. Retune the accents if you like — they feed
+     only text, dots and chips — but leave the glaze tokens
+     alone unless you are also re-checking the sparkles.      */
+  --rust-ink: #813F21;  /* 4.9:1 */
+  --sea:      #1B544D;  /* 5.4:1 */
+  --olive:    #465429;  /* 5.1:1 */
+  --indigo:   #444E88;  /* 4.8:1 */
+  --plum:     #6F4260;  /* 5.0:1 */
+  --ochre:    #6B4310;  /* 5.3:1 */
+
+  /* The star cycles these on every spin. They are the same six accents
+     the timeline uses, so the mark always belongs to the palette. */
+  --star-1: var(--rust-ink);
+  --star-2: var(--sea);
+  --star-3: var(--indigo);
+  --star-4: var(--plum);
+  --star-5: var(--ochre);
+  --star-6: var(--olive);
+
+  /* ── Timeline kinds ─────────────────────────────────────
+     Three categories, not six. Work, research and teaching are all
+     one stream of experience, and splitting them made the filter row
+     longer than the thing it filtered.                              */
+  --kind-experience: var(--rust-ink);
+  --kind-education:  var(--indigo);
+  --kind-project:    var(--ochre);
+  --kind-travel:     var(--sea);
+
+  /* The constellation easter egg. Near-white in both themes: it sits
+     BEHIND the copy, so it has to read as light falling on the page
+     rather than as another colour arguing with the words. */
+  --constellation: #FFFFFF;
+
+  /* ── Guided phrases ─────────────────────────────────────
+     The marked phrases in the intro.
+
+     These are as light as this ground physically allows. Body text on the
+     clay needs 4.5:1, which caps its luminance at 0.0945 — a true neon
+     teal like #2EE6C8 measures 1.02:1 against clay, nowhere close. So the
+     pop here comes from CHROMA, not lightness: pushed to 0.40 and swung
+     toward cyan, which reads brighter than the same value in green-teal.
+     Do not lighten these further without moving the phrases onto a darker
+     surface first.                                                       */
+  --phrase:     #04454E;  /* 5.4:1 on clay */
+  --phrase-hot: #015D68;  /* 4.7:1 — the lightest this ground permits */
+
+  /* ── Selection ──────────────────────────────────────────
+     A real blue rather than a tint of the glaze — the old one sat so
+     close to the card fill that dragging over text barely showed.
+     7.2:1 against --ink.                                            */
+  --selection: #89CFE3;
+
+  /* ── Type ───────────────────────────────────────────────  */
+  --font-display: 'Marcellus', 'Optima', Georgia, serif;
+  --font-body:    'Instrument Sans', system-ui, -apple-system, sans-serif;
+  --font-cjk:     'Noto Serif SC', 'Songti SC', 'STSong', serif;
+
+  --text-xs:   0.8125rem;
+  --text-sm:   0.9375rem;
+  --text-base: 1.0625rem;
+  --text-lg:   1.25rem;
+  --text-xl:   1.75rem;
+  --text-2xl:  2.5rem;
+  --text-3xl:  3.75rem;
+  --text-4xl:  5.25rem;
+
+  --leading-tight: 1.05;
+  --leading-snug:  1.35;
+  --leading-body:  1.68;
+
+  /* ── Space ──────────────────────────────────────────────  */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4.5rem;
+  --space-9: 7rem;
+
+  /* ── Shape ──────────────────────────────────────────────  */
+  --radius-sm: 0.375rem;
+  --radius:    0.875rem;
+  --radius-lg: 1.5rem;
+  --radius-pill: 999px;
+
+  /* ── Elevation ──────────────────────────────────────────
+     Exactly one shadow, and it is only for things that truly
+     float above the page: the lightbox dialog and the easter-egg
+     toast. In-page widgets are FLAT — no border, no shadow, no
+     gradient — and gain depth only on hover, via <Glow>. The
+     small-shadow and inset-gleam tokens were deleted rather than
+     left lying around for someone to reach for.
+
+     Clay-tinted, never neutral grey: a grey shadow over warm
+     clay instantly reads as dirty.                            */
+  --shadow-lift: 0 6px 12px rgba(74, 62, 44, 0.10),
+                 0 22px 50px rgba(74, 62, 44, 0.16);
+
+  /* ── Motion ─────────────────────────────────────────────  */
+  --ease-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-out:  cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast:  140ms;
+  --dur-base:  240ms;
+  --dur-slow:  420ms;
+
+  /* ── Layout ─────────────────────────────────────────────  */
+  --page-max: 66rem;
+  --measure:  66ch;
+  --nav-h:    4.5rem;
+}
+
+/* ============================================================
+   Dark — fired glaze.
+
+   Only the palette changes; every component reads these names
+   and needs no dark-specific CSS of its own. Ratios are quoted
+   against --clay (the ground) for body text, and against
+   --glaze-pale (the card) for the accents, since that is where
+   each actually sits.
+
+   Keyed on [data-theme] ALONE, with no prefers-color-scheme
+   fallback, on purpose: the inline script in index.html always
+   stamps data-theme before first paint, resolving the system
+   preference itself. A media-query copy would mean maintaining
+   two lists of the same twenty-odd values, and this is a
+   client-rendered app — with JS off there is no page to theme.
+   ============================================================ */
+:root[data-theme='dark'] {
+  --clay-deep:  #151A1F;
+  --clay:       #1E242A;
+
+  --glaze-pale: #2F3B42;  /* cards — lighter than the ground */
+  --glaze:      #27323A;
+  --glaze-mid:  #222B32;
+  --glaze-edge: #43585F;
+
+  --periwinkle: #7E88B8;
+  --lavender:   #9C8BB4;
+  --rust:       #B2663C;
+
+  --ink:       #E6EDEF;  /* 13.2:1 on clay */
+  --ink-soft:  #A9B6BB;  /*  7.5:1 on clay */
+  --ink-faint: #7C8A90;  /*  4.4:1 — LARGE TEXT ONLY */
+
+  /* Accents invert: light on dark. Ratios against --glaze-pale. */
+  --rust-ink: #F5A87E;  /* 5.8:1 — the tightest accent, so it runs bright */
+  --sea:      #6FD0C0;  /* 6.4:1 */
+  --olive:    #B7CE84;  /* 6.8:1 */
+  --indigo:   #9AA6E8;  /* 5.0:1 */
+  --plum:     #D79BC4;  /* 5.2:1 */
+  --ochre:    #E0AE5C;  /* 5.8:1 */
+
+  /* Pulled well back toward the ground rather than staying near-white:
+     on a dark page a white figure behind the text is far louder than the
+     same figure on a pale one. */
+  --constellation: #A8BCC4;
+
+  /* Dark mode needs none of that rescue — a light accent on a dark ground
+     has contrast to spare, and Amy likes it as it is. */
+  --phrase:     color-mix(in srgb, var(--sea) 75%, var(--ink-soft));
+  --phrase-hot: var(--sea);
+
+  /* Lifted off the ground rather than dropped: on a dark page the
+     highlight has to be the lighter of the two. 6.5:1 against --ink. */
+  --selection: #2C5A63;
+}

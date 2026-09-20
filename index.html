@@ -1,31 +1,60 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Amy Kang</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>★</text></svg>">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Lexend+Mega:wght@100;200;300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
-</head>
-<body id="top">
-  <div class="container">
-    <header class="header-box">
-      <h1 class="site-name" id="name"></h1>
-      <nav class="header-links" id="social-links" aria-label="Social links"></nav>
-    </header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
-    <div class="bio" id="bio"></div>
+    <title>Amy Kang</title>
+    <meta
+      name="description"
+      content="Amy Kang — math and computer science at Purdue. Work, teaching, research, and oil paintings."
+    />
 
-    <main id="sections"></main>
+    <!-- Static OG tags. A React SPA ships no pre-rendered HTML, so these
+         are what a link preview actually reads. They are site-wide by
+         design; per-route previews would need a pre-render step.
+         TODO: add <meta property="og:image"> once a preview image exists. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://amykang.me/" />
+    <meta property="og:title" content="Amy Kang" />
+    <meta
+      property="og:description"
+      content="Math and CS at Purdue. Work, teaching, research, and oil paintings."
+    />
+    <meta name="twitter:card" content="summary" />
+    <meta name="theme-color" content="#D2CBBC" />
+    <meta name="color-scheme" content="light" />
 
-    <div class="top-link"><a href="#top">TOP</a></div>
-
-    <footer class="art-promo" id="art-promo"></footer>
-  </div>
-
-  <script src="script.js"></script>
-</body>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wdth,wght@0,75..100,400..700;1,75..100,400..700&family=Marcellus&family=Noto+Serif+SC:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <script>
+      // Resolve the theme BEFORE first paint. Doing this in React would
+      // mean a frame of the wrong palette on every load. Stores nothing
+      // unless the visitor has explicitly overridden the system setting.
+      ;(function () {
+        try {
+          var saved = localStorage.getItem('amykang.theme')
+          var dark = window.matchMedia('(prefers-color-scheme: dark)').matches
+          document.documentElement.dataset.theme = saved || (dark ? 'dark' : 'light')
+        } catch (e) {
+          document.documentElement.dataset.theme = 'light'
+        }
+      })()
+    </script>
+    <div id="root"></div>
+    <noscript>
+      <p style="font-family: system-ui, sans-serif; padding: 2rem; max-width: 34rem">
+        This site needs JavaScript to run. You can still reach me at
+        <a href="mailto:aziqikang@gmail.com">aziqikang@gmail.com</a>.
+      </p>
+    </noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>

@@ -1,0 +1,261 @@
+.columns {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-5);
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* ── Card ───────────────────────────────────────────────  */
+.card {
+  display: block;
+  width: 100%;
+  padding: 0;
+  text-align: left;
+  /* Must equal --glow-radius on the wrapping <Glow>. */
+  border-radius: var(--radius-lg);
+  /* Flat: solid fill, no border, no shadow. Depth arrives on hover. */
+  background: var(--glaze);
+  overflow: hidden;
+}
+
+.frame {
+  /* aspect-ratio is set inline from the real pixel dimensions so the card
+     reserves its exact footprint before the image arrives — otherwise
+     every load reflows the whole column. */
+  width: 100%;
+  /* Transparent so the card's own fill shows through, including as it
+     brightens on the active row. A fixed brown matte read as a frame
+     bolted around the painting. */
+  background: transparent;
+  overflow: hidden;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  /* contain, never cover. Cropping a portrait to a square is the one
+     thing an art portfolio must not do. */
+  object-fit: contain;
+  transition: transform var(--dur-slow) var(--ease-soft);
+}
+
+.card:hover .image {
+  transform: scale(1.03);
+}
+
+.caption {
+  padding: var(--space-3) var(--space-4) var(--space-4);
+}
+
+/* Spans inside the <button> caption, so block has to be explicit or the
+   title and the medium collapse onto one line. */
+.title {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  letter-spacing: 0.02em;
+  color: var(--ink);
+}
+
+.meta {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: var(--text-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.award {
+  display: inline-block;
+  margin-top: var(--space-2);
+  padding: 0.18rem 0.65rem;
+  border-radius: var(--radius-pill);
+  /* Flat tint, no outline. Kept to 10%: in dark mode the accent is the
+     LIGHT colour, so tinting the chip with it lifts the background
+     toward the text and eats the contrast it needs. */
+  background: color-mix(in srgb, var(--rust-ink) 10%, var(--glaze-pale));
+  color: var(--rust-ink);
+  font-size: var(--text-xs);
+}
+
+/* ── Lightbox ───────────────────────────────────────────  */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: var(--space-6);
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, #2b241a 62%, transparent);
+  backdrop-filter: blur(5px);
+}
+
+/* One centred column: caption, then the work, then any notes, then
+   paging. The two-column version pushed the title off to one side and
+   left a tall empty gutter under it whenever a piece had no
+   description. */
+.dialog {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-5);
+  width: 100%;
+  max-width: 48rem;
+  max-height: 88vh;
+  padding: var(--space-6);
+  /* Flat fill like every other widget. The shadow stays: this is a modal
+     floating over a dimmed page, and elevation is what says so. */
+  background: var(--glaze-pale);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lift);
+  overflow-y: auto;
+  text-align: center;
+}
+
+.dialogHead {
+  /* Clears the close button on both sides, so a long centred title never
+     runs underneath it. */
+  padding: 0 var(--space-7);
+}
+
+.dialogImage {
+  /* auto width, not 100% — the work should sit at its own proportions up
+     to the limits, not be stretched to the dialog. */
+  width: auto;
+  max-width: 100%;
+  max-height: 58vh;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+  /* Matches the dialog exactly, so any letterboxing is invisible rather
+     than a slab framing the work. */
+  background: var(--glaze-pale);
+}
+
+.dialogBody {
+  /* Centred prose needs a measure, or a long description runs the full
+     48rem and becomes hard to track back to the next line. */
+  max-width: 54ch;
+}
+
+/* ── Dialog footer ──────────────────────────────────────
+   Paging reads outward from the counter, and sits in one fixed
+   place regardless of how long the caption above it runs.   */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  width: 100%;
+  margin-top: auto;
+  padding-top: var(--space-2);
+}
+
+.dialogTitle {
+  font-size: var(--text-2xl);
+}
+
+.dialogMeta {
+  margin-top: var(--space-2);
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sea);
+}
+
+.dialogDesc {
+  margin-top: var(--space-3);
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+  color: var(--ink);
+}
+
+.close {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--clay) 55%, var(--glaze-pale));
+  color: var(--ink-soft);
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-soft),
+    box-shadow var(--dur-base) var(--ease-out);
+}
+
+.close:hover {
+  transform: scale(1.08);
+  color: var(--rust-ink);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--rust-ink) 30%, transparent);
+}
+
+.counter {
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.navButton {
+  padding: 0.45rem 1.05rem;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--clay) 50%, var(--glaze-pale));
+  font-size: var(--text-xs);
+  color: var(--ink-soft);
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-soft),
+    box-shadow var(--dur-base) var(--ease-out);
+}
+
+.navButton:hover {
+  transform: scale(1.04);
+  color: var(--sea);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--sea) 26%, transparent);
+}
+
+@media (max-width: 52rem) {
+  .dialog {
+    gap: var(--space-4);
+    padding: var(--space-5);
+  }
+
+  .dialogHead {
+    padding: 0 var(--space-6);
+  }
+
+  .dialogImage {
+    max-height: 46vh;
+  }
+}
+
+@media (max-width: 34rem) {
+  .columns {
+    gap: var(--space-4);
+  }
+
+  .column {
+    gap: var(--space-4);
+  }
+
+  .overlay {
+    padding: var(--space-3);
+  }
+}

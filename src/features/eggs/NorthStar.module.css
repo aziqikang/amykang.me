@@ -1,0 +1,58 @@
+/* The phrase lights up as the star cursor approaches. --near runs 0 → 1
+   and is written straight to the node by NorthStar.tsx on pointermove.
+
+   Everything keyed off it is paint-only — colour, shadow, opacity. No
+   weight change, no letter-spacing, no scale: this sits mid-sentence, and
+   anything that changed its metrics would reflow the paragraph under the
+   reader's eyes every time the mouse went past. */
+.phrase {
+  --near: 0;
+  position: relative;
+  /* Same cursor the expandable cards use, so "this responds" is said in
+     the vocabulary the rest of the site already established. */
+  cursor: url('/cursor-star-active.svg') 10 10, pointer;
+  /* Rests in the same colour as every other guided phrase — it used to sit
+     at plain body colour until the pointer came near, so the one phrase with
+     the richest behaviour was the only one the eye never found. Proximity
+     now warms it from that rest toward the hover colour. */
+  color: color-mix(in srgb, var(--phrase-hot) calc(var(--near) * 100%), var(--phrase));
+  text-shadow: 0 0 calc(var(--near) * 16px)
+    color-mix(in srgb, var(--star-2) calc(var(--near) * 65%), transparent);
+}
+
+/* The two little catches of light that bracket the phrase. Absolutely
+   positioned so they cost the sentence no width. */
+.phrase::before,
+.phrase::after {
+  content: '\2726';
+  position: absolute;
+  top: -0.15em;
+  font-size: 0.62em;
+  color: var(--star-2);
+  opacity: calc(var(--near) * var(--near));
+  pointer-events: none;
+}
+
+.phrase::before {
+  left: -0.85em;
+  transform: rotate(calc(var(--near) * -25deg));
+}
+
+.phrase::after {
+  right: -0.85em;
+  transform: rotate(calc(var(--near) * 25deg));
+}
+
+/* No glow, no sparks, no bracketing stars — just the sentence. The click
+   still works; it simply arrives without the trail of breadcrumbs. */
+@media (prefers-reduced-motion: reduce) {
+  .phrase {
+    color: var(--phrase);
+    text-shadow: none;
+  }
+
+  .phrase::before,
+  .phrase::after {
+    display: none;
+  }
+}

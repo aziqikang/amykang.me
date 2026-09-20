@@ -1,0 +1,61 @@
+/* Sits above the glaze field for the same reason .page does — the
+   background is fixed at z-index 0 and would otherwise paint over it. */
+.footer {
+  position: relative;
+  z-index: 2;
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-6) var(--space-7);
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-5);
+  align-items: center;
+  justify-content: center;
+  /* A hairline rather than a filled bar: the glaze field is alive behind
+     this, and a solid footer plate would punch a hole in it. */
+  padding-top: var(--space-5);
+  border-top: 1px solid color-mix(in srgb, var(--glaze-edge) 45%, transparent);
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: var(--text-xs);
+  letter-spacing: 0.04em;
+  /* --ink-soft, not --ink-faint: this is 13px, and faint only clears the
+     contrast threshold at large sizes. */
+  color: var(--ink-soft);
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-soft);
+}
+
+.link svg {
+  width: 0.95rem;
+  height: 0.95rem;
+  flex-shrink: 0;
+  /* The icons inherit the link colour, so the hover carries both. */
+  color: var(--sea);
+  transition: color var(--dur-fast) var(--ease-soft);
+}
+
+.link:hover {
+  color: var(--ink);
+}
+
+.link:hover svg {
+  color: var(--rust-ink);
+}
+
+@media (max-width: 48rem) {
+  .footer {
+    padding: var(--space-5) var(--space-5) var(--space-6);
+  }
+
+  .links {
+    gap: var(--space-3) var(--space-4);
+  }
+}

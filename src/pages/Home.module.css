@@ -1,0 +1,58 @@
+.intro {
+  display: grid;
+  /* The text keeps its measure; the portrait takes only what it needs and
+     sits in the empty right-hand half the intro was leaving behind. */
+  grid-template-columns: minmax(0, 56ch) auto;
+  gap: var(--space-8);
+  align-items: center;
+  justify-content: start;
+  margin-bottom: var(--space-8);
+}
+
+.introText {
+  /* Prose needs a measure — the page is much wider than a readable line. */
+  max-width: 56ch;
+}
+
+/* The opening line is the page's real <h1>. Marcellus keeps the display
+   face present now that the big headline is gone, without shouting. */
+.greeting {
+  margin-bottom: var(--space-5);
+  font-size: var(--text-2xl);
+  color: var(--ink);
+}
+
+.intro p {
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+  color: var(--ink-soft);
+}
+
+.intro p + p {
+  margin-top: var(--space-4);
+}
+
+@media (max-width: 62rem) {
+  /* Below this the two columns would squeeze the measure, so the portrait
+     moves above the text — where it reads as a greeting rather than an
+     afterthought. */
+  .intro {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    gap: var(--space-6);
+  }
+
+  .introPortrait {
+    order: -1;
+  }
+}
+
+@media (max-width: 48rem) {
+  .intro {
+    margin-bottom: var(--space-7);
+  }
+
+  .greeting {
+    font-size: var(--text-xl);
+  }
+}

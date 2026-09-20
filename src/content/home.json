@@ -1,0 +1,10 @@
+{
+  "_note": "Intro block on the home page. The first line renders as the page's <h1>; the rest are paragraphs.",
+  "intro": [
+    "hi, my name is *amy!|stars*",
+    "i study *cs + math at purdue* and am currently on *exchange at nus*.",
+    "my *north star|north-star* is to *build the things i want to see exist*.",
+    "pretty websites, elegant proofs, watercolors ... i have an *affinity for aesthetics*.",
+    "anyhow, this page is a digital testament to creating things i'm proud of. i hope you enjoy your time here, and feel free to reach out c:"
+  ]
+}

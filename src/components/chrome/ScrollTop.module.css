@@ -1,0 +1,44 @@
+.holder {
+  position: fixed;
+  right: var(--space-5);
+  bottom: var(--space-5);
+  z-index: 60;
+}
+
+.button {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  background: var(--glaze);
+  color: var(--sea);
+  transition:
+    transform var(--dur-base) var(--ease-out),
+    background var(--dur-fast) var(--ease-soft),
+    box-shadow var(--dur-base) var(--ease-out);
+}
+
+.button:hover {
+  transform: scale(1.08);
+  background: var(--glaze-pale);
+  box-shadow:
+    0 0 18px color-mix(in srgb, var(--sea) 30%, transparent),
+    0 0 44px color-mix(in srgb, var(--sea) 16%, transparent);
+}
+
+.button:active {
+  transform: scale(0.95);
+}
+
+.icon {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+@media (max-width: 34rem) {
+  .holder {
+    right: var(--space-4);
+    bottom: var(--space-4);
+  }
+}

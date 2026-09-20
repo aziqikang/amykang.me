@@ -1,0 +1,103 @@
+.layout {
+  display: grid;
+  grid-template-columns: 17rem 1fr;
+  gap: var(--space-8);
+  align-items: start;
+}
+
+/* ── Portrait ───────────────────────────────────────────  */
+.portraitStack {
+  position: relative;
+}
+
+/* ── Prose ──────────────────────────────────────────────  */
+.prose {
+  max-width: var(--measure);
+}
+
+.prose p {
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+  color: var(--ink-soft);
+}
+
+.prose p + p {
+  margin-top: var(--space-4);
+}
+
+/* The opening paragraph is the standfirst — bigger and in full-strength
+   ink, so the column has somewhere to start. */
+.prose p:first-child {
+  font-size: var(--text-lg);
+  line-height: var(--leading-snug);
+  color: var(--ink);
+}
+
+/* Carries the spacing the removed "Find me" heading used to provide. */
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-7);
+}
+
+/* Every link is the same glaze pill. The résumé differs only by accent
+   colour and a stronger bloom — as a solid filled block it read as a
+   cookie-banner button dropped into the middle of the page. */
+.link {
+  --tint: var(--sea);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.6rem 1.1rem;
+  border-radius: var(--radius-pill);
+  /* Flat: solid fill, no border, no shadow. */
+  background: var(--glaze);
+  font-size: var(--text-sm);
+  color: var(--ink);
+  text-decoration: none;
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-soft),
+    box-shadow var(--dur-base) var(--ease-out),
+    color var(--dur-fast) var(--ease-soft);
+}
+
+.link:hover {
+  transform: scale(1.04);
+  background: var(--glaze-pale);
+  color: var(--tint);
+  box-shadow:
+    0 0 0 6px color-mix(in srgb, var(--tint) 10%, transparent),
+    0 0 20px color-mix(in srgb, var(--tint) 28%, transparent),
+    0 0 46px color-mix(in srgb, var(--tint) 16%, transparent);
+}
+
+.link svg {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  color: var(--tint);
+}
+
+/* Differs from the other links only by accent colour — as a solid filled
+   block it read as a cookie-banner button dropped mid-page. */
+.resume {
+  --tint: var(--rust-ink);
+  color: var(--rust-ink);
+}
+
+@media (max-width: 52rem) {
+  .layout {
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  .portraitStack {
+    max-width: 14rem;
+  }
+
+  .prose p:first-child {
+    font-size: var(--text-base);
+  }
+}

@@ -1,0 +1,199 @@
+/* ============================================================
+   Base layer — reset, document defaults, focus, cursor.
+   Every value here comes from tokens.css.
+
+   The page's background texture lives in <GlazeField />, not
+   in body pseudo-elements: it needs several stacked layers and
+   a dozen sparkle nodes, which is more than ::before/::after
+   can carry.
+   ============================================================ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  background: var(--clay);
+}
+
+body {
+  min-height: 100dvh;
+  background: var(--clay);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+  font-synthesis-weight: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+
+  /* Hotspot centred on a 20px board; the trailing keyword is not
+     optional — a failed SVG load would otherwise leave no cursor. */
+  cursor: url('/cursor-star.svg') 10 10, auto;
+}
+
+a,
+button,
+summary,
+[role='button'],
+[data-interactive] {
+  cursor: url('/cursor-star-active.svg') 10 10, pointer;
+}
+
+/* A decorative cursor over a text field actively hurts — you can no
+   longer see where the caret will land. */
+input,
+textarea,
+select,
+[contenteditable='true'] {
+  cursor: text;
+}
+
+:lang(zh),
+.cjk {
+  font-family: var(--font-cjk);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: var(--leading-tight);
+  letter-spacing: 0.005em;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+a {
+  color: var(--sea);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+  text-decoration-skip-ink: auto;
+  transition: color var(--dur-fast) var(--ease-soft);
+}
+
+a:hover {
+  color: var(--rust-ink);
+}
+
+img,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+::selection {
+  background: var(--selection);
+  color: var(--ink);
+}
+
+/* Present to assistive tech, absent on screen. For headings a page still
+   needs structurally even when the design shows no title. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Page container ─────────────────────────────────────
+   Global rather than a module, because every page needs the
+   identical measure and rhythm and there should be exactly one
+   definition of it. z-index lifts content above the glaze
+   field, which sits at 0.                                    */
+.page {
+  position: relative;
+  z-index: 2;
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-6) var(--space-9);
+}
+
+@media (max-width: 48rem) {
+  .page {
+    padding: var(--space-7) var(--space-5) var(--space-8);
+  }
+}
+
+@media (max-width: 34rem) {
+  .page {
+    padding: var(--space-6) var(--space-4) var(--space-8);
+  }
+}
+
+/* ── Focus ──────────────────────────────────────────────  */
+:focus-visible {
+  outline: 2px solid var(--sea);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.skip-link {
+  position: absolute;
+  left: var(--space-4);
+  top: var(--space-4);
+  z-index: 200;
+  padding: var(--space-2) var(--space-4);
+  background: var(--glaze-pale);
+  color: var(--ink);
+  border: 1px solid var(--sea);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  transform: translateY(-160%);
+  transition: transform var(--dur-base) var(--ease-out);
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
+/* ── Reduced motion ─────────────────────────────────────
+   Covers CSS animation. Motion's JS animations are handled by
+   <MotionConfig reducedMotion="user"> in App.tsx.            */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

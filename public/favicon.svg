@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+  <!-- Star only, transparent background.
+       Black as asked — but a black mark on a dark browser tab strip is
+       invisible, and SVG favicons honour prefers-color-scheme, so it
+       flips to white there rather than disappearing. -->
+  <style>
+    path { fill: #000; }
+    @media (prefers-color-scheme: dark) { path { fill: #fff; } }
+  </style>
+  <path d="M10 1 L12.23 6.93 L18.56 7.22 L13.61 11.17 L15.29 17.28 L10 13.8 L4.71 17.28 L6.39 11.17 L1.44 7.22 L7.77 6.93 Z"/>
+</svg>

@@ -1,0 +1,46 @@
+/* ── Guided phrases ─────────────────────────────────────
+   Colour only. Nothing here may change a glyph's advance width: the intro
+   sits directly above the timeline, so a reflow would shift every row on the
+   page and eat into the scroll-open tail budget — and within a line, a phrase
+   that widens on hover can slide out from under the pointer, unhover itself,
+   shrink, and flicker.
+
+   One accent for all of them, deliberately. A different hue per phrase would
+   look like a taxonomy that does not exist. */
+.phrase {
+  /* Both values live in tokens.css, per theme — see the note there on why
+     light mode cannot go lighter than it does. */
+  color: var(--phrase);
+  transition: color var(--dur-fast) var(--ease-soft);
+}
+
+.phrase:hover {
+  color: var(--phrase-hot);
+}
+
+/* A phrase that actually does something gets the site's "this responds"
+   cursor — the same one the timeline cards and the star use. That cursor is
+   the only thing separating a phrase you can click from one that is merely
+   emphasised, so it has to stay exclusive to the eggs. */
+.egg {
+  cursor: url('/cursor-star-active.svg') 10 10, pointer;
+}
+
+/* ── Heading words ──────────────────────────────────────
+   No resting colour: the heading does not need guiding to. */
+.word {
+  transition: color var(--dur-fast) var(--ease-soft);
+}
+
+.word:hover {
+  color: var(--phrase-hot);
+}
+
+/* The colour shift is the whole affordance, so it stays — it carries meaning
+   rather than decorating. Only the easing goes. */
+@media (prefers-reduced-motion: reduce) {
+  .phrase,
+  .word {
+    transition: none;
+  }
+}

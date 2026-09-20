@@ -1,0 +1,274 @@
+/* ============================================================
+   The page's living background: light moving over wet glaze.
+
+   PERFORMANCE IS THE DESIGN CONSTRAINT HERE.
+
+   Three earlier attempts froze the renderer outright, and it is
+   worth recording why so nobody reintroduces them:
+     1. A live <feTurbulence> element animated via SMIL —
+        recomputes the whole fractal every frame.
+     2. The same turbulence baked into a data URI but stretched
+        across the viewport — an SVG-with-filter background is
+        rasterised at its DISPLAYED size, so this recomputed
+        noise over ~3 million pixels.
+     3. Tiling that noise at a fixed 900px and animating
+        scale()/rotate() — changing scale forces the tile to be
+        re-rasterised on every animation step.
+   Fractal turbulence at page scale is simply not affordable.
+
+   So the organic shape comes from many overlapping ELLIPTICAL
+   gradients instead. Ellipses at differing sizes and offsets,
+   heavily overlapped and low-contrast, never resolve into a
+   readable circle — what you see is an irregular field. The
+   whole layer paints once; only transform and opacity animate,
+   which the compositor handles without repainting.
+
+   Hard rules for anything added here:
+     - no SVG filter larger than a small repeating tile
+     - no blur()/backdrop-filter on anything that moves
+     - animate transform and opacity ONLY, and never scale() on
+       a layer carrying a raster background
+   ============================================================ */
+
+.field {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Drawn below the viewport's resolution and stretched — see RENDER_SCALE
+   in GlazeCanvas.tsx. The field is soft enough that the upscale is
+   invisible, and shading fewer pixels is the whole performance budget. */
+.canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Glaze sheets ───────────────────────────────────────
+   Each sheet is ONE paint carrying five elliptical pools. They
+   are oversized and offset so their edges live well outside the
+   viewport, and the two sheets drift in opposite directions, so
+   where they reinforce each other keeps changing — that shifting
+   overlap is what reads as glaze catching the light.           */
+.sheet {
+  position: absolute;
+  top: -35%;
+  left: -35%;
+  width: 170%;
+  height: 170%;
+  /* soft-light, not normal. Painted normally these pale colours sit on
+     top of the clay and bleach it grey; blended, they modulate what is
+     already there — light regions brighten, the warmth survives. */
+  mix-blend-mode: soft-light;
+  will-change: transform, opacity;
+}
+
+/* Mid-tone source colours, not pale ones. Under soft-light a very light
+   colour mostly just lightens, which bleached the clay to grey; these
+   sit near the ground's own lightness, so they tint instead. */
+.sheetA {
+  background-image:
+    radial-gradient(
+      58% 34% at 22% 18%,
+      color-mix(in srgb, var(--glaze-edge) 96%, transparent),
+      transparent 68%
+    ),
+    radial-gradient(
+      44% 52% at 74% 30%,
+      color-mix(in srgb, var(--periwinkle) 88%, transparent),
+      transparent 66%
+    ),
+    radial-gradient(
+      66% 30% at 48% 62%,
+      color-mix(in srgb, var(--lavender) 74%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      38% 46% at 12% 76%,
+      color-mix(in srgb, var(--glaze-edge) 82%, transparent),
+      transparent 64%
+    ),
+    radial-gradient(
+      50% 36% at 86% 84%,
+      color-mix(in srgb, var(--rust) 40%, transparent),
+      transparent 68%
+    );
+  animation: sheet-a 64s var(--ease-soft) infinite alternate;
+}
+
+.sheetB {
+  background-image:
+    radial-gradient(
+      52% 40% at 66% 12%,
+      color-mix(in srgb, var(--lavender) 80%, transparent),
+      transparent 66%
+    ),
+    radial-gradient(
+      36% 58% at 18% 42%,
+      color-mix(in srgb, var(--periwinkle) 82%, transparent),
+      transparent 68%
+    ),
+    radial-gradient(
+      62% 32% at 80% 58%,
+      color-mix(in srgb, var(--glaze-edge) 90%, transparent),
+      transparent 70%
+    ),
+    /* A warm pool so the clay body still reads as stoneware rather than
+       drifting entirely cool. */
+      radial-gradient(
+        42% 44% at 34% 88%,
+        color-mix(in srgb, var(--rust) 44%, transparent),
+        transparent 66%
+      );
+  animation: sheet-b 89s var(--ease-soft) infinite alternate;
+}
+
+/* Opposed directions at coprime periods, so the two never settle into a
+   repeating rhythm. TRANSLATION AND OPACITY ONLY — see the header. */
+/* Wider opacity swings and longer travel than before — the field was
+   technically moving but you had to stare to notice. */
+@keyframes sheet-a {
+  from {
+    opacity: 0.42;
+    transform: translate3d(-8%, -5.5%, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(8%, 5.5%, 0);
+  }
+}
+
+@keyframes sheet-b {
+  from {
+    opacity: 0.9;
+    transform: translate3d(7%, 5%, 0);
+  }
+  to {
+    opacity: 0.3;
+    transform: translate3d(-7.5%, -4.5%, 0);
+  }
+}
+
+/* ── Highlight ──────────────────────────────────────────
+   A single slow bright pool that swells and fades on its own
+   period, so one area of the page is always a little more lit
+   than the rest — and it is never the same area twice running,
+   because 47s shares no factor with either sheet.             */
+.highlight {
+  position: absolute;
+  top: -20%;
+  left: -20%;
+  width: 140%;
+  height: 140%;
+  background-image: radial-gradient(
+    40% 30% at 60% 35%,
+    color-mix(in srgb, var(--glaze-pale) 95%, transparent),
+    transparent 62%
+  );
+  mix-blend-mode: soft-light;
+  will-change: transform, opacity;
+  animation: highlight 47s var(--ease-soft) infinite alternate;
+}
+
+@keyframes highlight {
+  from {
+    opacity: 0.18;
+    transform: translate3d(-13%, 7%, 0);
+  }
+  to {
+    opacity: 0.85;
+    transform: translate3d(13%, -8%, 0);
+  }
+}
+
+/* ── Clay speckle ───────────────────────────────────────
+   The dark flecks through the stoneware body. Thresholded
+   turbulence: the steep negative alpha row keeps only the lowest
+   noise values, turning a smooth cloud into discrete specks.
+
+   This is the ONE SVG filter that stays, and only because it is
+   a 220px tile — rasterised once, then repeated, and never
+   animated.                                                    */
+.speckle {
+  position: absolute;
+  inset: 0;
+  /* Lowered from 0.42. This is a grey noise veil across the entire
+     canvas, and at that strength it was desaturating the glaze
+     underneath — a real part of why the colour read as absent. */
+  opacity: 0.2;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='1' seed='9' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.42 0 0 0 0 0.37 0 0 0 0 0.29 0 0 0 -22 7'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23s)'/%3E%3C/svg%3E");
+}
+
+/* The speck colour is baked into the data URI above, and dark-brown
+   flecks vanish against a dark ground. Inverting turns them into pale
+   ones. Safe to filter because this layer never animates. */
+:global([data-theme='dark']) .speckle {
+  filter: invert(1);
+  opacity: 0.1;
+}
+
+/* ── Sparkles ───────────────────────────────────────────
+   Four-point catches of light on the wet glaze. Positions are
+   fixed in the component, not random per render, so they do not
+   jump around between paints.                                 */
+.sparkle {
+  position: absolute;
+  width: var(--size);
+  height: var(--size);
+  background: var(--tint);
+  clip-path: polygon(
+    50% 0%,
+    58% 42%,
+    100% 50%,
+    58% 58%,
+    50% 100%,
+    42% 58%,
+    0% 50%,
+    42% 42%
+  );
+  opacity: 0;
+  /* A bloom per sparkle so they read as catches of light rather than
+     dots. Cheap here only because these are 12-21px elements — the same
+     filter across a full-page layer would be ruinous. */
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--tint) 90%, transparent));
+  animation: twinkle var(--dur) var(--ease-soft) var(--delay) infinite;
+}
+
+@keyframes twinkle {
+  0%,
+  72%,
+  100% {
+    opacity: 0;
+    transform: scale(0.35) rotate(0deg);
+  }
+  12% {
+    opacity: 0.95;
+    transform: scale(1) rotate(22deg);
+  }
+  26% {
+    opacity: 0.4;
+    transform: scale(0.8) rotate(34deg);
+  }
+  38% {
+    opacity: 0.75;
+    transform: scale(0.95) rotate(44deg);
+  }
+}
+
+/* Everything here is ambient decoration; none of it carries meaning,
+   so it can all simply stop. */
+@media (prefers-reduced-motion: reduce) {
+  .sheet,
+  .highlight {
+    animation: none;
+  }
+
+  .sparkle {
+    display: none;
+  }
+}

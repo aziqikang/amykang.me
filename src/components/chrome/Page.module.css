@@ -1,0 +1,41 @@
+/* The page container itself is the global `.page` class in base.css —
+   this module only styles the heading block. */
+
+.head {
+  margin-bottom: var(--space-7);
+}
+
+.kicker {
+  margin-bottom: var(--space-3);
+  font-size: var(--text-xs);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--sea);
+}
+
+.title {
+  font-size: var(--text-3xl);
+  letter-spacing: 0.01em;
+  /* Done here rather than in the prop: `title` also feeds document.title,
+     and a lowercase browser tab / search result reads as a mistake
+     rather than as a choice. */
+  text-transform: lowercase;
+}
+
+.lede {
+  max-width: var(--measure);
+  margin-top: var(--space-4);
+  font-size: var(--text-lg);
+  line-height: var(--leading-snug);
+  color: var(--ink-soft);
+}
+
+@media (max-width: 48rem) {
+  .title {
+    font-size: var(--text-2xl);
+  }
+
+  .lede {
+    font-size: var(--text-base);
+  }
+}

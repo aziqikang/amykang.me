@@ -1,0 +1,168 @@
+[
+  {
+    "id": "nus-2026",
+    "start": "2026-08",
+    "dateLabel": "fall 2026",
+    "kind": "education",
+    "title": "study abroad",
+    "org": "national university of singapore",
+    "status": "current",
+    "detail": [
+      "coursework: parallel algorithms, optimization algorithms."
+    ]
+  },
+  {
+    "id": "meta-2026",
+    "start": "2026-05",
+    "dateLabel": "may – aug 2026",
+    "kind": "experience",
+    "title": "software engineering intern",
+    "org": "meta · datacenter design & config",
+    "summary": "built an automated regression safety net for the datacenter switch config pipeline.",
+    "detail": [
+      "replaced static-snapshot integration tests with dynamic baselines validated against production packages before comparison, as part of the team's CI/CD workflow.",
+      "automated the snapshot-update process and flagged risky diffs as \"dangerous,\" raising test signal fidelity and eliminating manual triage of false failures across the suite.",
+      "scaled the safety net across 13+ test networks — config validation covering roughly 500k devices, and still expanding."
+    ],
+    "tags": [
+      "python",
+      "CI/CD",
+      "testing"
+    ]
+  },
+  {
+    "id": "ecc-2026",
+    "start": "2026-01",
+    "dateLabel": "jan – may 2026",
+    "kind": "project",
+    "title": "elliptic curve group structure explorer",
+    "org": "directed reading program · purdue math",
+    "summary": "a field-agnostic playground for the group structure of elliptic curves.",
+    "detail": [
+      "built and deployed an elliptic curve arithmetic playground in python and streamlit for exploring group structure over arbitrary finite fields.",
+      "implemented baby-step giant-step to compute curve group order in O(√n) time, then factorized the result to determine cyclic structure and generators."
+    ],
+    "tags": [
+      "python",
+      "streamlit",
+      "number theory"
+    ],
+    "page": "ecc",
+    "pageLabel": "explore the project"
+  },
+  {
+    "id": "meta-hackathon-2025",
+    "start": "2025-10",
+    "dateLabel": "oct 2025",
+    "kind": "project",
+    "title": "1st place, popular vote",
+    "org": "meta AI-VR programming hackathon · menlo park",
+    "summary": "took the popular vote at meta's AI-VR hackathon."
+  },
+  {
+    "id": "cs381-2025",
+    "start": "2025-08",
+    "dateLabel": "aug 2025 – present",
+    "kind": "experience",
+    "title": "teaching assistant",
+    "org": "CS 381 analysis of algorithms · purdue",
+    "status": "ongoing",
+    "summary": "recitations and office hours for a 500-student algorithms course.",
+    "detail": [
+      "facilitate weekly recitations and office hours for a 500-student upper-level algorithms course."
+    ]
+  },
+  {
+    "id": "amazon-2025",
+    "start": "2025-05",
+    "dateLabel": "may – aug 2025",
+    "kind": "experience",
+    "title": "software engineering intern",
+    "org": "amazon · sustainable shipping",
+    "summary": "shipped a sustainability feature touching millions of customer interactions.",
+    "detail": [
+      "delivered a sustainability-focused feature on amazon's consumer platform, influencing millions of customer interactions.",
+      "scaled A/B testing to 1m+ entries by re-engineering hard-coded configs into a dynamodb-backed store.",
+      "built internal tooling so non-engineering teams could manage production configuration updates independently.",
+      "optimized reads and writes to hold under-10ms latency under production load."
+    ],
+    "tags": [
+      "java",
+      "dynamodb",
+      "AWS",
+      "A/B testing"
+    ]
+  },
+  {
+    "id": "ccam-2024",
+    "start": "2024-11",
+    "dateLabel": "nov 2024 – may 2025",
+    "kind": "experience",
+    "title": "research assistant",
+    "org": "center for computational & applied math · purdue",
+    "summary": "simulated elastic deformation of cells under microfluidic stress.",
+    "detail": [
+      "engineered MATLAB solvers using spherical harmonics to simulate elastic deformation of cells under microfluidic stress.",
+      "formulated PDEs from elasticity and continuum mechanics.",
+      "integrated the models into numerical schemes, improving accuracy in boundary-driven strain simulations."
+    ],
+    "tags": [
+      "MATLAB",
+      "PDEs",
+      "numerical methods"
+    ]
+  },
+  {
+    "id": "querystar-2024",
+    "start": "2024-05",
+    "dateLabel": "may – aug 2024",
+    "kind": "experience",
+    "title": "software intern, machine learning",
+    "org": "querystar · analytics & workflow automation",
+    "summary": "trained a CNN game-state classifier for racquet sports footage.",
+    "detail": [
+      "trained a CNN-based game state classifier for racquet sports footage in pytorch, improving model confidence by 20%.",
+      "automated dataset labeling via the google gemini vision API, cutting manual annotation by 90%.",
+      "enabled daily retrains by integrating iteration cycles and model validation into the production pipeline."
+    ],
+    "tags": [
+      "pytorch",
+      "opencv",
+      "computer vision"
+    ]
+  },
+  {
+    "id": "innovateher-2024",
+    "start": "2024-02",
+    "dateLabel": "feb 2024",
+    "kind": "project",
+    "title": "1st place, sustainability",
+    "org": "innovateher programming hackathon · purdue",
+    "summary": "won the sustainability track at innovateher."
+  },
+  {
+    "id": "ma366-2024",
+    "start": "2024-01",
+    "dateLabel": "jan 2024 – may 2025",
+    "kind": "experience",
+    "title": "head teaching assistant",
+    "org": "MA 366 differential equations · purdue",
+    "summary": "directed MATLAB ODE labs with 10 TAs and 5 faculty.",
+    "detail": [
+      "directed MATLAB-based ODE lab sessions with 10 TAs and 5 faculty, redesigning problem sets for 120+ students."
+    ]
+  },
+  {
+    "id": "purdue-2023",
+    "start": "2023-08",
+    "dateLabel": "aug 2023 – may 2027",
+    "kind": "education",
+    "title": "B.S. computer science & B.S. mathematics",
+    "org": "purdue university",
+    "status": "expected 2027",
+    "summary": "dual degree in CS and math. GPA 3.92.",
+    "detail": [
+      "relevant coursework: data structures, theory of algorithms, systems programming, computer architecture, operating systems, AI, probability."
+    ]
+  }
+]

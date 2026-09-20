@@ -1,0 +1,40 @@
+{
+  "name": "Amy Kang",
+  "portrait": {
+    "light": {
+      "src": "/img/headshot-light.webp",
+      "focus": "50% 0%"
+    },
+    "dark": {
+      "src": "/img/headshot-dark.webp",
+      "focus": "50% 100%"
+    }
+  },
+  "portraitAlt": "Amy Kang",
+  "paragraphs": [
+    "thanks for visiting!",
+    "this site is a continuous WIP for me. i appreciate the time taken to check out my work; feel free to reach out c:"
+  ],
+  "links": [
+    {
+      "label": "aziqikang",
+      "url": "https://github.com/aziqikang",
+      "icon": "github"
+    },
+    {
+      "label": "amyzkang",
+      "url": "https://linkedin.com/in/amyzkang",
+      "icon": "linkedin"
+    },
+    {
+      "label": "aziqikang@gmail.com",
+      "url": "mailto:aziqikang@gmail.com",
+      "icon": "email"
+    },
+    {
+      "label": "résumé (PDF)",
+      "url": "/Amy_Kang_Resume.pdf",
+      "icon": "resume"
+    }
+  ]
+}

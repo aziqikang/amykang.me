@@ -1,0 +1,48 @@
+.toast {
+  position: fixed;
+  right: var(--space-5);
+  bottom: var(--space-5);
+  z-index: 160;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-pill);
+  /* Flat fill; the shadow stays because this floats over the page. */
+  background: var(--glaze-pale);
+  box-shadow: var(--shadow-lift);
+  pointer-events: none;
+}
+
+/* An emoji rather than the site mark: this toast announces an easter
+   egg, and the star already means "logo" everywhere else on the page.
+   line-height 1 keeps the taller glyph from stretching the pill. */
+.egg {
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+.label {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  letter-spacing: 0.04em;
+  color: var(--ink);
+}
+
+/* --ink-soft, not --ink-faint: this is 13px, and faint only clears the
+   large-text contrast threshold. */
+.count {
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+@media (max-width: 34rem) {
+  .toast {
+    right: var(--space-4);
+    left: var(--space-4);
+    bottom: var(--space-4);
+    justify-content: center;
+  }
+}
