@@ -73,8 +73,12 @@ export function useTimelineScroll(enabled = true) {
     else nodes.current.delete(id)
   }, [])
 
-  // A fine pointer means a mouse or trackpad, where a one-frame scroll
-  // correction is invisible. Reduced motion opts out of the whole thing.
+  // Desktop only, and this was TESTED on a real iPhone rather than assumed.
+  // Every swap fires a compensating scrollTo; on iOS a programmatic scroll
+  // that lands mid-flick cancels momentum, and the result was visibly glitchy
+  // on device. Touch gets highlight-on-scroll plus tap-to-expand, which
+  // changes no geometry and cannot fight the scroller. Reduced motion opts
+  // out on every device.
   useEffect(() => {
     const fine = window.matchMedia('(hover: hover) and (pointer: fine)')
     const still = window.matchMedia('(prefers-reduced-motion: reduce)')

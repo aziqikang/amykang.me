@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
+import { useCallback, useRef, useState, type CSSProperties, type MouseEvent, type PointerEvent } from 'react'
 import aboutData from '@/content/about.json'
 import type { AboutData } from '@/content/types'
 import { Star } from './Star'
@@ -33,6 +33,7 @@ export type PortraitProps = {
  */
 export function Portrait({ size = '17rem', swap = true }: PortraitProps) {
   const [failed, setFailed] = useState(false)
+  const [revealed, setRevealed] = useState(false)
   const frame = useRef<HTMLDivElement>(null)
 
   /**
@@ -95,13 +96,33 @@ export function Portrait({ size = '17rem', swap = true }: PortraitProps) {
     )
   }
 
+  /**
+   * Touch has no hover, and leaning on :hover gave the worst of both: the
+   * first tap latched the photo over and it only came back when you tapped
+   * somewhere else entirely. A tap is a toggle instead, blooming from
+   * wherever the finger landed. The CSS keeps the two apart — :hover only
+   * applies to fine pointers, this only applies to coarse ones — so a mouse
+   * click cannot leave the photo stuck on the wrong image.
+   */
+  const tap = useCallback((event: MouseEvent<HTMLDivElement>) => {
+    const node = frame.current
+    if (!node) return
+    const rect = node.getBoundingClientRect()
+    const pin = (value: number) => Math.min(100, Math.max(0, value))
+    node.style.setProperty('--px', `${pin(((event.clientX - rect.left) / rect.width) * 100)}%`)
+    node.style.setProperty('--py', `${pin(((event.clientY - rect.top) / rect.height) * 100)}%`)
+    setRevealed((current) => !current)
+  }, [])
+
   return (
     <div
       ref={frame}
       className={styles.frame}
       style={{ '--size': size } as CSSProperties}
+      data-revealed={revealed || undefined}
       onPointerEnter={aim}
       onPointerLeave={aim}
+      onClick={tap}
     >
       <img
         className={`${styles.layer} ${styles.daylight}`}

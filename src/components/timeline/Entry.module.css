@@ -28,8 +28,14 @@
    the line into segments as it settles.                      */
 .node {
   position: relative;
+  /* stretch alone makes this fill the row. It previously also carried
+     min-height: 100%, which is circular — the percentage resolves against
+     the grid container, whose height is decided by this very item. Safari
+     resolved it against the row's LAST definite height, so after a card
+     expanded and collapsed again the spine kept the expanded height and
+     held the whole row open: the expandable read 0 but the row stayed 586px.
+     That was the gap under a closed card on iOS. */
   align-self: stretch;
-  min-height: 100%;
 }
 
 .dot {
@@ -150,6 +156,31 @@ button.head {
   line-height: 1.2;
   letter-spacing: 0.005em;
   color: var(--ink);
+}
+
+/* Title and its award sit on one line and wrap together, so a long title
+   pushes the chip down rather than squeezing it against the chevron. */
+.titleLine {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.award {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.16rem 0.55rem;
+  border-radius: var(--radius-pill);
+  /* 10%, matching the tags: in dark mode --kind is the LIGHT colour, so a
+     heavier tint lifts the chip toward the text sitting on it. */
+  background: color-mix(in srgb, var(--kind) 10%, var(--glaze-pale));
+  color: var(--kind);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
 }
 
 .org {

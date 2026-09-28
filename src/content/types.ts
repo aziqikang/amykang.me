@@ -22,6 +22,12 @@ export type TimelineEntry = {
   org?: string
   /** Small badge, e.g. "incoming". */
   status?: string
+  /**
+   * A prize this piece of work won, shown as a trophy chip beside the title.
+   * The TITLE should be the thing that was made — the award is a footnote to
+   * it, not its name.
+   */
+  award?: string
   /** One line, shown while collapsed. Optional — an entry whose title and
       org already say it needs no gloss, and omitting this collapses the
       space rather than leaving a gap. */

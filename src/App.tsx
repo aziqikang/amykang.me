@@ -5,6 +5,7 @@ import { NAV } from '@/content/nav'
 import { Nav } from '@/components/chrome/Nav'
 import { GlazeField } from '@/components/chrome/GlazeField'
 import { ScrollTop } from '@/components/chrome/ScrollTop'
+import { DebugPanel } from '@/features/debug/DebugPanel'
 import { Footer } from '@/components/chrome/Footer'
 import { EggProvider } from '@/features/eggs/EggProvider'
 import { jumpScroll } from '@/lib/scroll'
@@ -115,6 +116,10 @@ export default function App() {
         <Footer />
 
         <ScrollTop />
+
+        {/* Diagnostics for mobile layout bugs; see DebugPanel. */}
+        {typeof window !== 'undefined' &&
+          new URLSearchParams(window.location.search).has('debug') && <DebugPanel />}
 
         {/* Phase 4: <Mascot /> mounts here — outside <Routes> so it survives
             tab changes and the tour can drive navigation while staying

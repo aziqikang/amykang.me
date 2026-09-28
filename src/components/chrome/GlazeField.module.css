@@ -32,7 +32,17 @@
 
 .field {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100%;
+  /* NOT inset: 0. iOS lays fixed elements out against the SMALL viewport —
+     the one with the URL bar showing — so when the bar retracts the page
+     grows taller than the field and a strip of bare background is left
+     uncovered at the edge. lvh is the large viewport, the tallest it can
+     get, so the field spans it in either state. vh first for anything that
+     does not know lvh. */
+  height: 100vh;
+  height: 100lvh;
   z-index: 0;
   overflow: hidden;
   pointer-events: none;

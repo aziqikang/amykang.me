@@ -31,7 +31,7 @@ uniform vec3  uRust;      // warm rim
 uniform vec3  uInk;       // body text — decides which way contrast runs
 
 /** xy = origin in pixels, z = birth time in seconds. */
-uniform vec3  uRipple[${MAX_RIPPLES}];
+uniform vec4  uRipple[${MAX_RIPPLES}];
 
 const float LIFE  = 1.4;   // seconds before an impulse is spent
 const float FREQ  = 0.125; // spatial frequency — higher means tighter rings
@@ -112,18 +112,29 @@ float ripples(vec2 px, out vec2 grad) {
   grad = vec2(0.0);
 
   for (int i = 0; i < ${MAX_RIPPLES}; i++) {
-    vec3 r = uRipple[i];
+    vec4 r = uRipple[i];
+
+    // w is how hard the impulse was struck; 0.0 marks a slot never used.
+    // Everything else scales off it, so one buffer serves both the faint
+    // wake the pointer drags behind it and the heavy ring a click drops.
+    float amp = r.w;
     float age = uTime - r.z;
 
-    // 1.0 while the impulse is alive, 0.0 otherwise.
-    float alive = step(0.0, age) * step(age, LIFE);
+    // A harder strike rings for longer, clamped so a slack wake ripple
+    // still lives long enough to register.
+    float life = LIFE * clamp(amp, 0.3, 1.0);
+    float alive = step(0.0, age) * step(age, life) * step(0.001, amp);
 
     vec2 d = px - r.xy;
     float dist = length(d) + 0.0001;
     float phase = dist * FREQ - age * SPEED;
 
+    // ...and travels further. A wake ripple is pulled in tight, so the trail
+    // reads as a line of small disturbances rather than a smear of rings.
+    float fall = FALL * (1.45 - 0.45 * clamp(amp, 0.0, 1.0));
+
     // Rings fade with distance from the origin and with age.
-    float envelope = exp(-dist * FALL) * exp(-age * 2.1) * alive;
+    float envelope = exp(-dist * fall) * exp(-age * 2.1) * alive * amp;
 
     h += sin(phase) * envelope;
     grad += (d / dist) * cos(phase) * FREQ * envelope;

@@ -2,8 +2,23 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- viewport-fit=cover is what lets the page reach the physical edges
+         of the screen. Without it iOS lays the page out INSIDE the safe
+         areas, so the background stops short of the Dynamic Island at the
+         top and of the home indicator / URL bar at the bottom, and the
+         flat html background shows through in both strips. Content that
+         must stay clear of the notch uses env(safe-area-inset-*). -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <!-- .ico first, SVG second: browsers that understand both prefer the
+         later, richer declaration, and the ones that do not fall back to the
+         .ico instead of silently requesting a missing one from the root.
+         Only the SVG can follow the colour scheme, so it stays primary. -->
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
     <title>Amy Kang</title>
     <meta
@@ -23,8 +38,23 @@
       content="Math and CS at Purdue. Work, teaching, research, and oil paintings."
     />
     <meta name="twitter:card" content="summary" />
-    <meta name="theme-color" content="#D2CBBC" />
-    <meta name="color-scheme" content="light" />
+    <!-- iOS Safari paints its status bar and URL bar with theme-color, so a
+         single flat value showed as a clay strip above and below the page in
+         BOTH themes — the "background cuts off" effect. One per scheme makes
+         the browser chrome match the ground it sits against. The gradient
+         itself cannot extend into Safari's chrome; matching it is the most
+         that is available. -->
+    <!-- Not the flat clay ground: these are the blue-teal glaze that the
+         background field is actually full of (--glaze-mid in each theme), so
+         Safari's bars read as part of the page rather than a strip bolted to
+         the ends of it. Hard-coded because meta cannot reference a custom
+         property — keep them in step with tokens.css if the glaze moves. -->
+    <meta name="theme-color" content="#BCD9D6" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#222B32" media="(prefers-color-scheme: dark)" />
+    <!-- Was "light", from before dark mode existed. Claiming light-only makes
+         the browser render form controls and its own canvas in light even
+         when the page is dark. -->
+    <meta name="color-scheme" content="light dark" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

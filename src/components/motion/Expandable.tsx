@@ -1,5 +1,5 @@
-import { AnimatePresence, motion } from 'motion/react'
 import type { ReactNode } from 'react'
+import styles from './Expandable.module.css'
 
 export type ExpandableProps = {
   open: boolean
@@ -10,56 +10,48 @@ export type ExpandableProps = {
    * Apply the change in one commit, with no animation.
    *
    * The timeline opens cards as you scroll, and any height change that
-   * happens off-screen has to be corrected with a compensating scroll or
-   * the visible part of the page lurches. That correction can only be
-   * measured once, immediately after the DOM settles — so the height has
-   * to land in a single layout pass. An animated off-screen change would
-   * need the page scrolled on every frame of it, which is precisely what
-   * made the first attempt fight the reader's own scrolling.
+   * happens off-screen has to be corrected with a compensating scroll or the
+   * visible part of the page lurches. That correction can only be measured
+   * once, immediately after the DOM settles — so the height has to land in a
+   * single layout pass.
    */
   instant?: boolean
 }
 
 /**
- * Animated height reveal for the timeline's expanding cards.
+ * Height reveal for the timeline's expanding cards.
  *
- * The outer element carrying `id` is ALWAYS rendered, even while
- * collapsed. AnimatePresence removes the inner content on close, and if
- * the id lived on that inner node the trigger's aria-controls would point
- * at nothing whenever the card was shut — a broken relationship that
- * assistive tech reports on every collapsed card on the page.
+ * ── Why this is CSS grid and not an animated height ──
  *
- * `data-expandable` marks this node for the scroll hook, which measures it
- * to know how much height a card is about to give back when it closes.
+ * This used to animate `height: 0 → auto` with Motion, which measures the
+ * content and animates to a pixel value. On iOS that left a gap: close a
+ * card and the space beneath it stayed, pushing the next card down. An
+ * animated height only reaches zero if the animation RUNS TO COMPLETION, and
+ * an interruption — a re-render mid-exit, a scroll, a dropped frame — strands
+ * it partway with the element still mounted at whatever height it had.
+ *
+ * `grid-template-rows: 0fr → 1fr` has no such failure mode. The closed state
+ * is a declared CSS value, not the endpoint of a running animation, so an
+ * interrupted transition still lands on exactly zero. It also needs no
+ * measurement, so there is nothing to re-measure when the content reflows.
+ *
+ * The child stays mounted rather than being unmounted on close. That keeps
+ * the `aria-controls` target alive (a trigger pointing at nothing is a
+ * broken relationship assistive tech reports on every collapsed card), and
+ * `inert` keeps the hidden content out of the tab order so a collapsed card
+ * cannot swallow keyboard focus.
  */
 export function Expandable({ open, children, id, instant = false }: ExpandableProps) {
   return (
-    <div id={id} data-expandable="">
-      {instant ? (
-        open && <div>{children}</div>
-      ) : (
-        <AnimatePresence initial={false}>
-          {open && (
-            <motion.div
-              key="expandable"
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{
-                // Height animates to 'auto' rather than a measured pixel
-                // value, so a card whose content reflows still lands right.
-                // Opacity runs faster so the text has settled before the box
-                // stops growing.
-                height: { duration: 0.3, ease: [0.22, 0.61, 0.36, 1] },
-                opacity: { duration: 0.2, ease: 'easeOut' },
-              }}
-              style={{ overflow: 'hidden' }}
-            >
-              {children}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      )}
+    <div
+      id={id}
+      data-expandable=""
+      data-open={open || undefined}
+      className={instant ? `${styles.wrap} ${styles.instant}` : styles.wrap}
+    >
+      <div className={styles.inner} inert={!open}>
+        {children}
+      </div>
     </div>
   )
 }

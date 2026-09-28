@@ -55,9 +55,19 @@
     "start": "2025-10",
     "dateLabel": "oct 2025",
     "kind": "project",
-    "title": "1st place, popular vote",
+    "title": "pokAR",
     "org": "meta AI-VR programming hackathon · menlo park",
-    "summary": "took the popular vote at meta's AI-VR hackathon."
+    "award": "1st place, popular vote",
+    "summary": "an experimental AR poker overlay for the meta quest 3 that reads the room and shows live win odds.",
+    "detail": [
+      "built an AR poker overlay for the meta quest 3 in unity, drawing each hand and the odds attached to it straight into the player’s view.",
+      "computed those odds with a monte carlo simulation over the game states still reachable from the table, so the number moves as cards land."
+    ],
+    "tags": [
+      "unity",
+      "AR",
+      "monte carlo"
+    ]
   },
   {
     "id": "cs381-2025",
@@ -136,9 +146,25 @@
     "start": "2024-02",
     "dateLabel": "feb 2024",
     "kind": "project",
-    "title": "1st place, sustainability",
+    "title": "toss: the recycling app",
     "org": "innovateher programming hackathon · purdue",
-    "summary": "won the sustainability track at innovateher."
+    "award": "1st place, sustainability",
+    "summary": "throw it away, the right way: point a camera at something and find out which bin it belongs in.",
+    "detail": [
+      "built a flutter app that identifies an item from the camera or its barcode and matches it against local recycling rules.",
+      "wired gemini’s image recognition to a flask backend with google cloud storage, start to finish in 24 hours."
+    ],
+    "tags": [
+      "flutter",
+      "gemini API",
+      "flask"
+    ],
+    "links": [
+      {
+        "label": "devpost",
+        "url": "https://devpost.com/software/toss-mobile"
+      }
+    ]
   },
   {
     "id": "ma366-2024",

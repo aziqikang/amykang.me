@@ -45,8 +45,20 @@
   transition: --portrait-bloom var(--dur-slow) var(--ease-soft);
 }
 
-.frame:hover {
-  --portrait-bloom: 118%;
+/* Hover drives it only where hovering exists. Unscoped, a tap on iOS counts
+   as a hover that sticks until you tap elsewhere — the photo latched over and
+   would not come back. */
+@media (hover: hover) and (pointer: fine) {
+  .frame:hover {
+    --portrait-bloom: 118%;
+  }
+}
+
+/* Touch gets an explicit toggle instead. */
+@media (hover: none), (pointer: coarse) {
+  .frame[data-revealed] {
+    --portrait-bloom: 118%;
+  }
 }
 
 .layer {

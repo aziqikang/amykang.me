@@ -61,7 +61,17 @@ export function Entry({ entry, open, active, instant, onToggle, registerRef }: E
       <span className={styles.dateInline}>{entry.dateLabel}</span>
       <span className={styles.titleRow}>
         <span>
-          <span className={styles.title}>{entry.title}</span>
+          <span className={styles.titleLine}>
+            <span className={styles.title}>{entry.title}</span>
+            {entry.award && (
+              <span className={styles.award}>
+                {/* Decorative: the award's name is right beside it, and a
+                    screen reader announcing "trophy" adds nothing. */}
+                <span aria-hidden="true">🏆</span>
+                {entry.award}
+              </span>
+            )}
+          </span>
           {entry.org && <span className={styles.org}>{entry.org}</span>}
         </span>
         {hasDetail && <Chevron open={open} />}

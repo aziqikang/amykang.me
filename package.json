@@ -7,7 +7,12 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "art:compress": "node scripts/compress-art.mjs"
+    "art:compress": "node scripts/compress-art.mjs",
+    "favicons": "node scripts/make-favicons.mjs",
+    "dev:host": "vite --host",
+    "preview:host": "vite build && vite preview --host",
+    "watch": "vite build --watch",
+    "serve": "vite preview --host"
   },
   "dependencies": {
     "katex": "^0.16.47",

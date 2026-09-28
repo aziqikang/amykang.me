@@ -1,0 +1,31 @@
+/* The revealed state is the DEFAULT here, and the hidden state is applied
+   only once we know an observer is watching. That ordering is the whole
+   point: if the JS never runs — script error, ancient browser — the content
+   is visible rather than permanently blank. */
+.reveal {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.5s var(--ease-soft) var(--reveal-delay, 0s),
+    transform 0.5s var(--ease-soft) var(--reveal-delay, 0s);
+}
+
+/* Hidden only while the observer has not fired yet. .reveal:not([data-shown])
+   would hide content before the effect mounts, so the hiding is scoped to
+   elements the component has actually taken charge of. */
+.reveal[data-observing]:not([data-shown]) {
+  opacity: 0;
+  transform: translateY(var(--reveal-distance, 14px));
+}
+
+/* Nothing to animate; the base rule above is already the final state. */
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    transition: none;
+  }
+
+  .reveal[data-observing]:not([data-shown]) {
+    opacity: 1;
+    transform: none;
+  }
+}

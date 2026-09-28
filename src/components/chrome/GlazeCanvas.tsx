@@ -11,8 +11,39 @@ import styles from './GlazeField.module.css'
  */
 const RENDER_SCALE = 0.6
 
-/** Pointer travel between spawned impulses, in CSS pixels. */
-const SPAWN_DISTANCE = 26
+/**
+ * Pointer travel between wake impulses, in CSS pixels.
+ *
+ * Halved from 26 to make the trail read as a wake rather than a row of
+ * separate circles. This is free: the fragment shader loops over every slot
+ * for every pixel whatever happens, so spawning more often costs nothing.
+ * Raising MAX_RIPPLES is what would cost.
+ */
+const SPAWN_DISTANCE = 13
+
+/**
+ * The buffer is split rather than shared.
+ *
+ * With one ring, dragging the pointer recycled the slot a click had just
+ * written before its ring had finished expanding — the heavier impulse was
+ * being eaten by the lighter one. Clicks get their own slots so a click
+ * always plays out in full.
+ */
+const MOVE_SLOTS = 12
+
+/**
+ * How hard each kind of impulse strikes. This drives THREE things at once —
+ * amplitude, lifetime and radial spread — so it is easy to over-correct with.
+ *
+ * The wake sat at 0.45 and went noticeably faint: at that strength it was not
+ * just 45% as tall, it also lived 0.6s instead of 1.4s and fell off faster
+ * with distance. 0.85 puts it back to roughly the old presence while still
+ * reading as lighter than a click. The click is well above 1.0 because
+ * lifetime is clamped there — past that, extra strength buys height and
+ * spread without the ring overstaying.
+ */
+const MOVE_AMP = 0.85
+const CLICK_AMP = 1.5
 
 type Props = {
   /** Reports whether WebGL actually came up, so the CSS field can yield. */
@@ -152,9 +183,10 @@ export function GlazeCanvas({ onStatus }: Props) {
     // sixteen slots read as born at t=0 and therefore alive — so every
     // page load fired sixteen stacked ripples out of the bottom-left
     // corner until they aged out.
-    const ripples = new Float32Array(MAX_RIPPLES * 3)
-    for (let i = 0; i < MAX_RIPPLES; i += 1) ripples[i * 3 + 2] = -1000
-    let nextRipple = 0
+    const ripples = new Float32Array(MAX_RIPPLES * 4)
+    for (let i = 0; i < MAX_RIPPLES; i += 1) ripples[i * 4 + 2] = -1000
+    let nextMove = 0
+    let nextClick = MOVE_SLOTS
     let lastSpawn = { x: 0, y: 0 }
     let started = performance.now()
 
@@ -179,15 +211,13 @@ export function GlazeCanvas({ onStatus }: Props) {
       gl.uniform2f(u.res, w, h)
     }
 
-    const spawn = (clientX: number, clientY: number) => {
-      const x = clientX * RENDER_SCALE
+    const spawn = (clientX: number, clientY: number, amp: number, slot: number) => {
+      const i = slot * 4
+      ripples[i] = clientX * RENDER_SCALE
       // Canvas Y runs bottom-up; the pointer's runs top-down.
-      const y = (window.innerHeight - clientY) * RENDER_SCALE
-      const i = nextRipple * 3
-      ripples[i] = x
-      ripples[i + 1] = y
+      ripples[i + 1] = (window.innerHeight - clientY) * RENDER_SCALE
       ripples[i + 2] = (performance.now() - started) / 1000
-      nextRipple = (nextRipple + 1) % MAX_RIPPLES
+      ripples[i + 3] = amp
     }
 
     const onPointerMove = (event: PointerEvent) => {
@@ -195,19 +225,22 @@ export function GlazeCanvas({ onStatus }: Props) {
       const dy = event.clientY - lastSpawn.y
       if (dx * dx + dy * dy < SPAWN_DISTANCE * SPAWN_DISTANCE) return
       lastSpawn = { x: event.clientX, y: event.clientY }
-      spawn(event.clientX, event.clientY)
+      spawn(event.clientX, event.clientY, MOVE_AMP, nextMove)
+      nextMove = (nextMove + 1) % MOVE_SLOTS
     }
 
     const onPointerDown = (event: PointerEvent) => {
-      // A press drops several at once, so a click reads heavier than a
-      // drift of the mouse.
-      spawn(event.clientX, event.clientY)
-      spawn(event.clientX + 2, event.clientY + 2)
+      // One impulse, struck hard. This used to stack two wake-strength
+      // ripples a couple of pixels apart to fake weight; now the strength
+      // is a property of the impulse, so a click is a single ring that is
+      // taller, wider and longer-lived than the wake it interrupts.
+      spawn(event.clientX, event.clientY, CLICK_AMP, nextClick)
+      nextClick = MOVE_SLOTS + ((nextClick - MOVE_SLOTS + 1) % (MAX_RIPPLES - MOVE_SLOTS))
     }
 
     const draw = () => {
       gl.uniform1f(u.time, (performance.now() - started) / 1000)
-      gl.uniform3fv(u.ripple, ripples)
+      gl.uniform4fv(u.ripple, ripples)
       gl.drawArrays(gl.TRIANGLES, 0, 3)
     }
 

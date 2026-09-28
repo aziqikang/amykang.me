@@ -99,13 +99,20 @@
   padding-bottom: calc(62vh - 18rem);
 }
 
-/* Load bearing: the browser's native scroll anchoring corrects for
-   off-screen height changes too, and it would apply its adjustment on top
-   of the one useTimelineScroll makes — doubling every correction. */
 .list {
-  overflow-anchor: none;
   display: block;
 }
+
+/* NO overflow-anchor:none anywhere. It was here on the theory that native
+   scroll anchoring would stack on top of useTimelineScroll's correction and
+   double it. That theory was wrong, and the rule caused a real bug: with
+   anchoring off, collapsing a card stranded the scroll position and left a
+   gap the page never took back.
+
+   It is safe because the correction is MEASURED, not assumed: the hook reads
+   the anchor row's position before and after the commit and moves by the
+   difference. If the browser has already absorbed the shift, that difference
+   is zero and the hook does nothing. The two cannot double up. */
 
 /* ── Year marker ────────────────────────────────────────  */
 .year {
