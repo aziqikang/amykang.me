@@ -23,10 +23,6 @@ html {
      sharp-cornered rectangle around it before the card opened. Every
      tappable thing here already shows its own state. */
   -webkit-tap-highlight-color: transparent;
-  /* Readable by JS, which env() otherwise is not. Used by the debug panel
-     and available for padding content clear of the notch. */
-  --sat: env(safe-area-inset-top, 0px);
-  --sab: env(safe-area-inset-bottom, 0px);
   -webkit-text-size-adjust: 100%;
   background: var(--clay);
 }
