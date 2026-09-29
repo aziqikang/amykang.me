@@ -69,7 +69,14 @@ export function Track({ entries }: { entries: TimelineEntry[] }) {
     [entries],
   )
 
-  const visible = filter === 'all' ? sorted : sorted.filter((e) => e.kind === filter)
+  // Travel is deliberately absent from EVERYTHING. It is a different kind of
+  // thing from the rest of this list — the timeline reads as a record of work,
+  // and trips interleaved through it dilute that. The chip still exists, so
+  // the entries are one tap away rather than hidden.
+  const visible =
+    filter === 'all'
+      ? sorted.filter((entry) => entry.kind !== 'travel')
+      : sorted.filter((entry) => entry.kind === filter)
 
   // Filtering unmounts rows, so whatever was open is probably gone.
   useEffect(() => {

@@ -1,0 +1,35 @@
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
+}
+
+/* Same flat pill language as the timeline filters, so "switch the view"
+   looks the same wherever it appears. */
+.tab {
+  padding: 0.4rem 0.95rem;
+  border-radius: var(--radius-pill);
+  background: var(--glaze);
+  font-size: var(--text-xs);
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+  text-decoration: none;
+  transition:
+    background var(--dur-fast) var(--ease-soft),
+    color var(--dur-fast) var(--ease-soft),
+    box-shadow var(--dur-base) var(--ease-out);
+}
+
+.tab:hover {
+  color: var(--ink);
+  background: var(--glaze-pale);
+}
+
+.active {
+  background: var(--glaze-pale);
+  color: var(--sea);
+  box-shadow:
+    0 0 0 5px color-mix(in srgb, var(--sea) 10%, transparent),
+    0 0 18px color-mix(in srgb, var(--sea) 24%, transparent);
+}

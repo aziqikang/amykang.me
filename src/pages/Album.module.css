@@ -1,0 +1,22 @@
+.back {
+  margin-bottom: var(--space-5);
+  font-size: var(--text-xs);
+  letter-spacing: 0.06em;
+}
+
+.back a,
+.missing a {
+  color: var(--sea);
+  text-decoration: none;
+}
+
+.back a:hover,
+.missing a:hover {
+  text-decoration: underline;
+}
+
+.missing {
+  padding: var(--space-7) 0;
+  color: var(--ink-soft);
+  font-style: italic;
+}

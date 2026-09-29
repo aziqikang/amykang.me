@@ -18,6 +18,10 @@
   width: 100%;
   padding: 0;
   text-align: left;
+  /* Album cards are links rather than buttons, so they arrive underlined
+     and in the link colour unless told otherwise. */
+  text-decoration: none;
+  color: inherit;
   /* Must equal --glow-radius on the wrapping <Glow>. */
   border-radius: var(--radius-lg);
   /* Flat: solid fill, no border, no shadow. Depth arrives on hover. */
@@ -124,6 +128,77 @@
   box-shadow: var(--shadow-lift);
   overflow-y: auto;
   text-align: center;
+}
+
+/* Photographs: no plate, no padding, no shadow — the picture is the object,
+   and a frame around it competes. The backdrop stays, because an image still
+   needs something to sit against. */
+.dialogBare {
+  background: none;
+  box-shadow: none;
+  padding: 0;
+  gap: var(--space-4);
+}
+
+.dialogBare .dialogImage {
+  /* Nothing behind it, so nothing to letterbox against either. */
+  background: none;
+  max-height: 78vh;
+}
+
+/* Everything below loses the plate it used to sit on, so it stops inheriting
+   contrast from it. --ink-soft on a dimmed backdrop was close to invisible —
+   it is a colour chosen to sit on a pale card. These are fixed light values
+   rather than tokens on purpose: the backdrop is the same dark wash in both
+   themes, so this text does not follow the theme. */
+.dialogBare .close {
+  background: color-mix(in srgb, #2b241a 55%, transparent);
+  color: #fff;
+}
+
+.dialogBare .counter {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.dialogBare .navButton {
+  background: color-mix(in srgb, #2b241a 55%, transparent);
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.dialogBare .navButton:hover {
+  color: #fff;
+  box-shadow: 0 0 18px color-mix(in srgb, #fff 22%, transparent);
+}
+
+/* Centred under the photo. Given a measure so a long caption wraps into a
+   readable block instead of running the full width of a landscape image. */
+.photoCaption {
+  margin: 0;
+  max-width: 46ch;
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
+  color: rgba(255, 255, 255, 0.9);
+  /* The backdrop is translucent, so a bright photo can show through behind
+     the text; the shadow keeps it legible over either. */
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
+}
+
+/* No caption, so the image is the whole card and wants no bottom padding. */
+.photoCard .frame {
+  border-radius: var(--radius-lg);
+}
+
+/* An album whose folder is not filled yet. */
+.coverFallback {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(160deg, var(--glaze-pale), var(--glaze-edge));
+}
+
+.empty {
+  padding: var(--space-7) 0;
+  color: var(--ink-soft);
+  font-style: italic;
 }
 
 .dialogHead {

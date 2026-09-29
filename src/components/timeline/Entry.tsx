@@ -127,56 +127,73 @@ export function Entry({ entry, open, active, instant, onToggle, registerRef }: E
                 a button is invalid, and browsers disagree about which one
                 a click belongs to. Right-aligned because the whole timeline
                 is left-bound, so this is the one thing on the far side. */}
-            {entry.page && (
+            {(entry.page || entry.album) && (
               <div className={styles.pageRow}>
-                <Link className={styles.pageLink} to={`/e/${entry.page}`}>
-                  {entry.pageLabel ?? 'project page'}
-                  <span aria-hidden="true">↗</span>
-                </Link>
+                {entry.page && (
+                  <Link className={styles.pageLink} to={`/e/${entry.page}`}>
+                    {entry.pageLabel ?? 'project page'}
+                    <span aria-hidden="true">↗</span>
+                  </Link>
+                )}
+                {entry.album && (
+                  <Link
+                    className={styles.pageLink}
+                    to={`/art/photography/${entry.album}`}
+                  >
+                    photos
+                    <span aria-hidden="true">↗</span>
+                  </Link>
+                )}
               </div>
             )}
 
-            <Expandable open={open} id={detailId} instant={instant}>
-              <div className={styles.detail}>
-                <div className={styles.rule} />
+            {/* Only when there is something behind it. Without this guard a
+                card with no bullets still rendered the panel, so the scroll
+                spy opening a travel entry revealed an empty box containing
+                nothing but the separator rule. */}
+            {hasDetail && (
+              <Expandable open={open} id={detailId} instant={instant}>
+                <div className={styles.detail}>
+                  <div className={styles.rule} />
 
-                {entry.detail && (
-                  <ul className={styles.bullets}>
-                    {entry.detail.map((line) => (
-                      <li key={line} className={styles.bullet}>
-                        {line}
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                  {entry.detail && (
+                    <ul className={styles.bullets}>
+                      {entry.detail.map((line) => (
+                        <li key={line} className={styles.bullet}>
+                          {line}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
 
-                {entry.tags && (
-                  <ul className={styles.tags}>
-                    {entry.tags.map((tag) => (
-                      <li key={tag} className={styles.tag}>
-                        {tag}
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                  {entry.tags && (
+                    <ul className={styles.tags}>
+                      {entry.tags.map((tag) => (
+                        <li key={tag} className={styles.tag}>
+                          {tag}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
 
-                {entry.links && (
-                  <div className={styles.links}>
-                    {entry.links.map((link) => (
-                      <a
-                        key={link.url}
-                        className={styles.more}
-                        href={link.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {link.label} ↗
-                      </a>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </Expandable>
+                  {entry.links && (
+                    <div className={styles.links}>
+                      {entry.links.map((link) => (
+                        <a
+                          key={link.url}
+                          className={styles.more}
+                          href={link.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {link.label} ↗
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </Expandable>
+            )}
           </article>
         </Glow>
       </div>

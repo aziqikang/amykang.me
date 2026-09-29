@@ -12,7 +12,8 @@
     "dev:host": "vite --host",
     "preview:host": "vite build && vite preview --host",
     "watch": "vite build --watch",
-    "serve": "vite preview --host"
+    "serve": "vite preview --host",
+    "photos:compress": "node scripts/make-photos.mjs"
   },
   "dependencies": {
     "katex": "^0.16.47",
