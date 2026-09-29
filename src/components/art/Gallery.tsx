@@ -62,7 +62,16 @@ export function Gallery({ pieces, dims }: { pieces: ArtPiece[]; dims: ArtDims })
                         <span className={styles.meta}>
                           {piece.year} · {piece.medium}
                         </span>
-                        {piece.award && <span className={styles.award}>{piece.award}</span>}
+                        {piece.award && (
+                          <span className={styles.award}>
+                            {/* Decorative: the award's name is right beside
+                                it, exactly as on the timeline chip, so a
+                                screen reader announcing "trophy" adds
+                                nothing. */}
+                            <span aria-hidden="true">🏆</span>
+                            {piece.award}
+                          </span>
+                        )}
                       </div>
                     </button>
                   </Glow>
@@ -112,7 +121,12 @@ export function Gallery({ pieces, dims }: { pieces: ArtPiece[]; dims: ArtDims })
               body={(piece) =>
                 piece.award || piece.description ? (
                   <>
-                    {piece.award && <span className={styles.award}>{piece.award}</span>}
+                    {piece.award && (
+                      <span className={styles.award}>
+                        <span aria-hidden="true">🏆</span>
+                        {piece.award}
+                      </span>
+                    )}
                     {piece.description && (
                       <p className={styles.dialogDesc}>{piece.description}</p>
                     )}

@@ -30,7 +30,12 @@ export default function Album() {
   }
 
   return (
-    <Page title={album.title} kicker={album.date} documentTitle={album.title}>
+    <Page
+      title={album.title}
+      kicker={album.date}
+      lede={album.caption}
+      documentTitle={album.title}
+    >
       <ArtTabs />
       <p className={styles.back}>
         <Link to="/art/photography">← all albums</Link>

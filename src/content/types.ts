@@ -61,6 +61,11 @@ export type Album = {
   /** Photo id used as the cover. Defaults to the first photo in the album. */
   cover?: string
   /**
+   * A line about the album itself, shown under its title. Distinct from
+   * `captions` below, which annotate individual photos.
+   */
+  caption?: string
+  /**
    * Optional captions, keyed by photo id — { "03": "the lake at dawn" }.
    * Photos without one simply show no caption; there is no placeholder.
    */

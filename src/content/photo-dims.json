@@ -15,6 +15,26 @@
     "w": 4284,
     "h": 5712
   },
+  "bahamas-dec-2025/05": {
+    "w": 3312,
+    "h": 5214
+  },
+  "bahamas-dec-2025/06": {
+    "w": 3461,
+    "h": 4829
+  },
+  "bahamas-dec-2025/07": {
+    "w": 4284,
+    "h": 5712
+  },
+  "bahamas-dec-2025/08": {
+    "w": 5712,
+    "h": 4284
+  },
+  "bahamas-dec-2025/09": {
+    "w": 4284,
+    "h": 5712
+  },
   "colorado-july-2026/01": {
     "w": 2048,
     "h": 1536
@@ -147,6 +167,30 @@
     "w": 4000,
     "h": 3000
   },
+  "mt-st-helens/01": {
+    "w": 3024,
+    "h": 4032
+  },
+  "mt-st-helens/02": {
+    "w": 5712,
+    "h": 4284
+  },
+  "mt-st-helens/03": {
+    "w": 3024,
+    "h": 4032
+  },
+  "mt-st-helens/04": {
+    "w": 3024,
+    "h": 4032
+  },
+  "mt-st-helens/05": {
+    "w": 3024,
+    "h": 4032
+  },
+  "mt-st-helens/06": {
+    "w": 4284,
+    "h": 5712
+  },
   "northern-vietnam-september-2026/01": {
     "w": 4000,
     "h": 3000
@@ -183,25 +227,49 @@
     "w": 4000,
     "h": 3000
   },
-  "switzerland-northern-italy-august-2026/01": {
+  "switzerland-northern-italy-august-2025/01": {
     "w": 3017,
     "h": 4024
   },
-  "switzerland-northern-italy-august-2026/02": {
+  "switzerland-northern-italy-august-2025/02": {
     "w": 3092,
     "h": 4697
   },
-  "switzerland-northern-italy-august-2026/03": {
+  "switzerland-northern-italy-august-2025/03": {
     "w": 3024,
     "h": 4032
   },
-  "switzerland-northern-italy-august-2026/04": {
+  "switzerland-northern-italy-august-2025/04": {
     "w": 4284,
     "h": 5712
   },
-  "switzerland-northern-italy-august-2026/05": {
+  "switzerland-northern-italy-august-2025/05": {
     "w": 3024,
     "h": 4032
+  },
+  "switzerland-northern-italy-august-2025/06": {
+    "w": 4032,
+    "h": 3024
+  },
+  "switzerland-northern-italy-august-2025/07": {
+    "w": 4284,
+    "h": 5712
+  },
+  "switzerland-northern-italy-august-2025/08": {
+    "w": 3024,
+    "h": 4032
+  },
+  "switzerland-northern-italy-august-2025/09": {
+    "w": 3024,
+    "h": 4032
+  },
+  "switzerland-northern-italy-august-2025/10": {
+    "w": 3024,
+    "h": 4032
+  },
+  "switzerland-northern-italy-august-2025/11": {
+    "w": 4284,
+    "h": 5712
   },
   "yosemite-july-2026/01": {
     "w": 2048,

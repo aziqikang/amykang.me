@@ -12,9 +12,9 @@
     "cover": "07"
   },
   {
-    "id": "switzerland-northern-italy-august-2026",
+    "id": "switzerland-northern-italy-august-2025",
     "title": "switzerland & northern italy",
-    "date": "august 2026",
+    "date": "august 2025",
     "cover": "02"
   },
   {
@@ -38,5 +38,12 @@
     "id": "bahamas-dec-2025",
     "title": "bahamas",
     "date": "december 2025"
+  },
+  {
+    "id": "mt-st-helens",
+    "title": "mt st helens",
+    "date": "august 2024",
+    "cover": "03",
+    "caption": "summit trek with dad 🥸"
   }
 ]
