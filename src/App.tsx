@@ -17,6 +17,13 @@ import { useSystemThemeSync } from '@/features/theme/theme'
  */
 const EntryPage = lazy(() => import('@/pages/EntryPage'))
 
+/**
+ * Lazy for the same reason: the room carries PeerJS (WebRTC networking)
+ * that no one browsing the portfolio needs to download.
+ */
+const PlayCabo = lazy(() => import('@/pages/cabo/PlayCabo'))
+const CaboRoom = lazy(() => import('@/pages/cabo/CaboRoom'))
+
 // Photography sits under the art tab rather than in NAV: the sub-tab row
 // inside the page switches between them, so these are destinations.
 //
@@ -148,6 +155,31 @@ export default function App() {
               element={
                 <Transition>
                   <Album />
+                </Transition>
+              }
+            />
+
+            {/* A card game for friends. Not a tab — it is reached by link.
+                The landing explains the rules and opens or joins a room;
+                /play-cabo/<word> is the room itself, so the join word is
+                also a shareable invite link. */}
+            <Route
+              path="/play-cabo"
+              element={
+                <Transition>
+                  <Suspense fallback={null}>
+                    <PlayCabo />
+                  </Suspense>
+                </Transition>
+              }
+            />
+            <Route
+              path="/play-cabo/:code"
+              element={
+                <Transition>
+                  <Suspense fallback={null}>
+                    <CaboRoom />
+                  </Suspense>
                 </Transition>
               }
             />

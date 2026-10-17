@@ -1,0 +1,169 @@
+/* Cards are the one in-page object allowed a shadow: they are things
+   lying on the table, not widgets printed on it. */
+.card {
+  --face: #FBF8F1;
+  --suit-black: #2B2723;
+  --suit-red: #A3391F;
+
+  position: relative;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: var(--w);
+  aspect-ratio: 5 / 7;
+  border-radius: calc(var(--w) * 0.11);
+  font-family: var(--font-display);
+  line-height: 1;
+  user-select: none;
+  box-shadow: 0 1px 2px rgba(58, 51, 43, 0.18), 0 3px 8px rgba(58, 51, 43, 0.10);
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out),
+    outline-color var(--dur-fast) var(--ease-soft);
+}
+
+:root[data-theme='dark'] .card {
+  --face: #ECE7DC;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 3px 10px rgba(0, 0, 0, 0.3);
+}
+
+.sm { --w: 2.6rem; }
+.md { --w: 3.6rem; }
+.lg { --w: 5rem; }
+
+@media (max-width: 34rem) {
+  .sm { --w: 2.15rem; }
+  .md { --w: 3rem; }
+  .lg { --w: 4.1rem; }
+}
+
+/* ── Back: a glaze pour with the site star ──────────────── */
+.back {
+  background:
+    radial-gradient(circle at 30% 20%, var(--glaze-pale), transparent 60%),
+    linear-gradient(160deg, var(--glaze-mid), var(--glaze-edge));
+  border: calc(var(--w) * 0.05) solid var(--glaze-pale);
+  color: var(--sea);
+}
+
+.backStar {
+  opacity: 0.8;
+}
+
+/* ── Face ──────────────────────────────────────────────── */
+.face {
+  background: var(--face);
+  color: var(--suit-black);
+}
+
+.red {
+  color: var(--suit-red);
+}
+
+.corner {
+  position: absolute;
+  top: calc(var(--w) * 0.07);
+  left: calc(var(--w) * 0.09);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: calc(var(--w) * 0.24);
+  letter-spacing: -0.03em;
+}
+
+.corner span {
+  font-size: 0.8em;
+  margin-top: 0.05em;
+}
+
+.cornerFlip {
+  top: auto;
+  left: auto;
+  bottom: calc(var(--w) * 0.07);
+  right: calc(var(--w) * 0.09);
+  transform: rotate(180deg);
+}
+
+.sm .cornerFlip {
+  display: none;
+}
+
+.pip {
+  font-size: calc(var(--w) * 0.46);
+}
+
+.sm .pip {
+  margin-top: 25%;
+  font-size: calc(var(--w) * 0.36);
+}
+
+/* ── States ────────────────────────────────────────────── */
+.empty {
+  background: none;
+  box-shadow: none;
+  border: 1.5px dashed color-mix(in srgb, var(--ink-faint) 45%, transparent);
+}
+
+button.card {
+  font: inherit;
+  font-family: var(--font-display);
+  padding: 0;
+}
+
+.active {
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--sea) 40%, transparent),
+    0 0 18px color-mix(in srgb, var(--sea) 35%, transparent);
+}
+
+.active:hover {
+  transform: translateY(-3px);
+}
+
+.selected {
+  transform: translateY(-6px);
+  box-shadow:
+    0 0 0 3px var(--rust-ink),
+    0 0 20px color-mix(in srgb, var(--rust-ink) 40%, transparent);
+}
+
+.selected:hover {
+  transform: translateY(-6px);
+}
+
+.private::after {
+  content: 'only you';
+  position: absolute;
+  bottom: calc(-1 * var(--space-4));
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-body);
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--sea);
+}
+
+.sm.private::after {
+  content: 'seen';
+}
+
+/* Everyone sees cards move, even when nobody sees what they are. */
+.flash_swap,
+.flash_replace,
+.flash_penalty,
+.flash_look {
+  animation: pulse 1.6s var(--ease-out) 2;
+}
+
+.flash_swap { --pulse: var(--indigo); }
+.flash_replace { --pulse: var(--sea); }
+.flash_penalty { --pulse: var(--rust-ink); }
+.flash_look { --pulse: var(--plum); }
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--pulse) 70%, transparent); }
+  60% { box-shadow: 0 0 0 10px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
