@@ -33,6 +33,10 @@ jobs:
       # plugin in vite.config.ts. public/CNAME is copied into dist by Vite,
       # which is what keeps the custom domain bound after every deploy.
       - run: npm run build
+        env:
+          # Where /play-cabo finds its game server (server/ in this repo).
+          # Set under Settings → Secrets and variables → Actions → Variables.
+          VITE_CABO_SERVER: ${{ vars.CABO_SERVER }}
 
       - uses: actions/configure-pages@v5
 

@@ -19,9 +19,8 @@ const EntryPage = lazy(() => import('@/pages/EntryPage'))
 
 /**
  * Cabo is a game, not a page of the site: it brings its own full-screen
- * table and none of the site chrome. Lazy for the same reason as above —
- * it carries PeerJS (WebRTC networking) that no one browsing the
- * portfolio needs to download.
+ * table and none of the site chrome. Lazy for the same reason as above:
+ * no one browsing the portfolio needs to download a card game.
  */
 const CaboApp = lazy(() => import('@/pages/cabo/CaboApp'))
 

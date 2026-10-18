@@ -1,7 +1,7 @@
 /**
  * Join codes. One word each, long enough to be unguessable in practice
  * for a casual card game, short enough to say across a room. Lowercase
- * a–z only, because they double as part of a PeerJS id and a URL.
+ * a–z only, because they double as a URL path and a server room name.
  */
 const WORDS = `
 aardvark albatross alligator alpaca anteater antelope armadillo axolotl

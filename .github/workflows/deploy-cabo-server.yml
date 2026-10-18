@@ -1,0 +1,44 @@
+name: Deploy Cabo server
+
+# The game server for /play-cabo, a Cloudflare Worker in server/. It shares
+# the rules engine with the site, so a change to either redeploys it.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'server/**'
+      - 'src/features/cabo/engine.ts'
+      - 'src/features/cabo/protocol.ts'
+      - '.github/workflows/deploy-cabo-server.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: cabo-server
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+
+      - run: npm ci
+      - run: npm run typecheck
+
+      # Until the Cloudflare secrets exist, typecheck only — deploy by hand
+      # with `npx wrangler deploy` from server/.
+      - name: Deploy
+        if: env.CLOUDFLARE_API_TOKEN != ''
+        run: npx wrangler deploy
