@@ -1,16 +1,14 @@
 import { useEffect, useState } from 'react'
-import { GuestRoom, HostRoom, playerId, savedHostGame, type Snapshot } from './net'
+import { playerId, Room, type Snapshot } from './net'
 
 /**
- * One live room per tab, held outside React.
+ * One live room connection per tab, held outside React.
  *
- * A room owns a claimed PeerJS id, and the broker holds a released id for
- * a few seconds — so tearing the room down and rebuilding it (StrictMode's
- * double effect, or a re-render that changes nothing) would lock the host
- * out of their own code. Teardown is therefore deferred a tick and
- * cancelled if the same room is asked for again straight away.
+ * StrictMode mounts effects twice, and a re-render can re-run them, so
+ * teardown is deferred a tick and cancelled if the same room is asked for
+ * again straight away — otherwise every mount would reconnect.
  */
-let live: { key: string; room: HostRoom | GuestRoom } | null = null
+let live: { key: string; room: Room } | null = null
 let pendingClose: ReturnType<typeof setTimeout> | null = null
 
 function acquire(code: string, host: boolean, name: string) {
@@ -21,24 +19,22 @@ function acquire(code: string, host: boolean, name: string) {
   }
   if (live?.key === key) return live.room
   live?.room.close()
-  const me = playerId()
-  const room = host ? new HostRoom(code, me, name, savedHostGame(code)) : new GuestRoom(code, me, name)
+  const room = new Room(code, playerId(), name, host)
   live = { key, room }
   return room
 }
 
-function release(room: HostRoom | GuestRoom) {
+function release(room: Room) {
   pendingClose = setTimeout(() => {
     pendingClose = null
     if (live?.room !== room) return
-    if (room instanceof HostRoom) room.end()
-    else room.close()
+    room.close()
     live = null
   }, 50)
 }
 
 export function useRoom(code: string, host: boolean, name: string | null) {
-  const [room, setRoom] = useState<HostRoom | GuestRoom | null>(null)
+  const [room, setRoom] = useState<Room | null>(null)
   const [snap, setSnap] = useState<Snapshot | null>(null)
 
   useEffect(() => {

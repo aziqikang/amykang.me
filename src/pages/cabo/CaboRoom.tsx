@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent, type MouseEvent, type ReactNode } from 'react'
 import { Link, Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { cleanCode, randomWord } from '@/features/cabo/words'
-import { savedHostGame } from '@/features/cabo/net'
+import type { FailReason } from '@/features/cabo/net'
 import { useRoom } from '@/features/cabo/useRoom'
 import { useHelp } from './Help'
 import { Lobby } from './Lobby'
@@ -16,11 +16,10 @@ export default function CaboRoom() {
   const navigate = useNavigate()
   const help = useHelp()
 
-  // Hosting is decided once per mount: either we came here from "host a
-  // table", or this tab was already hosting this word before a reload.
-  const [host] = useState(
-    () => (location.state as { host?: boolean } | null)?.host === true || savedHostGame(code) !== null,
-  )
+  // Arriving from "host a table" may open a new room; arriving any other
+  // way only joins one. History state survives a reload, so a host who
+  // refreshes simply rejoins their own table.
+  const [host] = useState(() => (location.state as { host?: boolean } | null)?.host === true)
   const [name, setName] = useState<string | null>(() => loadName() || null)
   const [logOpen, setLogOpen] = useState(false)
   const { room, snap } = useRoom(code, host, name)
@@ -36,14 +35,8 @@ export default function CaboRoom() {
     }
   }, [snap?.status, host, navigate])
 
-  // Closing the tab as host ends the room for everyone, so say so.
-  const others = (snap?.view?.players.length ?? 1) > 1
-  useEffect(() => {
-    if (!host || !others) return
-    const warn = (e: BeforeUnloadEvent) => e.preventDefault()
-    window.addEventListener('beforeunload', warn)
-    return () => window.removeEventListener('beforeunload', warn)
-  }, [host, others])
+  // Mid-game, leaving drops you from the round, so check first.
+  const midGame = !!snap?.view && snap.view.phase !== 'lobby' && snap.status.kind !== 'failed'
 
   if (code !== params.code) {
     return <Navigate to={code ? `/play-cabo/${code}` : '/play-cabo'} />
@@ -52,7 +45,7 @@ export default function CaboRoom() {
   if (!name) return <NamePrompt code={code} onName={setName} />
 
   const leave = (e: MouseEvent) => {
-    if (host && others && !window.confirm('Leave the table? As host, this ends the game for everyone.')) {
+    if (midGame && !window.confirm('Leave the table? The game carries on without you.')) {
       e.preventDefault()
     }
   }
@@ -64,14 +57,19 @@ export default function CaboRoom() {
     body = <Notice title={host ? 'setting the table…' : `finding “${code}”…`} />
   } else if (status.kind === 'failed' && status.reason !== 'taken') {
     body = (
-      <Notice title={status.reason === 'not-found' ? 'no table here' : 'can’t join'}>
+      <Notice title={FAIL_TITLE[status.reason]}>
         <p>{status.message}</p>
-        {status.reason === 'not-found' && (
-          <p>Check the word with your host — a table only exists while the host has it open.</p>
-        )}
-        <Link className={styles.primary} to="/play-cabo">
-          back
-        </Link>
+        {status.reason === 'not-found' && <p>Check the word with your host — it may have a typo.</p>}
+        <div className={styles.choices}>
+          {(status.reason === 'unreachable' || status.reason === 'replaced') && (
+            <button type="button" className={styles.primary} onClick={() => window.location.reload()}>
+              {status.reason === 'replaced' ? 'play here instead' : 'try again'}
+            </button>
+          )}
+          <Link className={styles.secondary} to="/play-cabo">
+            back
+          </Link>
+        </div>
       </Notice>
     )
   } else if (!view) {
@@ -129,6 +127,14 @@ export default function CaboRoom() {
       {body}
     </div>
   )
+}
+
+const FAIL_TITLE: Record<FailReason, string> = {
+  'not-found': 'no table here',
+  taken: 'word taken',
+  rejected: 'can’t join',
+  replaced: 'open in another tab',
+  unreachable: 'can’t connect',
 }
 
 function Notice({ title, children }: { title: string; children?: ReactNode }) {

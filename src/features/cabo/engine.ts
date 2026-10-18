@@ -226,6 +226,15 @@ export function setConnected(s: GameState, id: string, connected: boolean): Game
     say(next, connected ? `${p.name} reconnected` : `${p.name} lost connection`)
     if (next.phase === 'peek') maybeBeginTurns(next)
   }
+  // The host's buttons (start, deal, skip) must stay reachable, so the role
+  // passes to someone still at the table. It does not pass back.
+  if (!connected && id === next.hostId) {
+    const heir = next.players.find((q) => q.connected)
+    if (heir) {
+      next.hostId = heir.id
+      say(next, `${heir.name} is now the host`)
+    }
+  }
   return next
 }
 
