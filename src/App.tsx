@@ -18,11 +18,12 @@ import { useSystemThemeSync } from '@/features/theme/theme'
 const EntryPage = lazy(() => import('@/pages/EntryPage'))
 
 /**
- * Lazy for the same reason: the room carries PeerJS (WebRTC networking)
- * that no one browsing the portfolio needs to download.
+ * Cabo is a game, not a page of the site: it brings its own full-screen
+ * table and none of the site chrome. Lazy for the same reason as above —
+ * it carries PeerJS (WebRTC networking) that no one browsing the
+ * portfolio needs to download.
  */
-const PlayCabo = lazy(() => import('@/pages/cabo/PlayCabo'))
-const CaboRoom = lazy(() => import('@/pages/cabo/CaboRoom'))
+const CaboApp = lazy(() => import('@/pages/cabo/CaboApp'))
 
 // Photography sits under the art tab rather than in NAV: the sub-tab row
 // inside the page switches between them, so these are destinations.
@@ -101,6 +102,14 @@ export default function App() {
   // Keep following the OS palette until the visitor flips it themselves.
   useSystemThemeSync()
 
+  if (location.pathname === '/play-cabo' || location.pathname.startsWith('/play-cabo/')) {
+    return (
+      <Suspense fallback={null}>
+        <CaboApp />
+      </Suspense>
+    )
+  }
+
   return (
     /* reducedMotion="user" makes every Motion animation in the app honor
        prefers-reduced-motion in one place. base.css covers CSS animation,
@@ -155,31 +164,6 @@ export default function App() {
               element={
                 <Transition>
                   <Album />
-                </Transition>
-              }
-            />
-
-            {/* A card game for friends. Not a tab — it is reached by link.
-                The landing explains the rules and opens or joins a room;
-                /play-cabo/<word> is the room itself, so the join word is
-                also a shareable invite link. */}
-            <Route
-              path="/play-cabo"
-              element={
-                <Transition>
-                  <Suspense fallback={null}>
-                    <PlayCabo />
-                  </Suspense>
-                </Transition>
-              }
-            />
-            <Route
-              path="/play-cabo/:code"
-              element={
-                <Transition>
-                  <Suspense fallback={null}>
-                    <CaboRoom />
-                  </Suspense>
                 </Transition>
               }
             />

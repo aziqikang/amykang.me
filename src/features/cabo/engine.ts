@@ -15,6 +15,12 @@
  *   J, Q      swap   — blindly swap one of yours with one of theirs
  *   black K   look   — look at one of yours and one of theirs, then
  *                      decide whether to swap them
+ *
+ * Stacking: at any point in play, anyone may throw a card from ANY hand
+ * onto the discard pile if it matches the top card's rank. Throwing
+ * someone else's card means giving them one of yours to fill the gap.
+ * A wrong throw is shown to everyone, the card goes back, and the
+ * thrower takes a penalty card from the deck.
  */
 
 export type Suit = 'S' | 'H' | 'D' | 'C'
@@ -107,6 +113,9 @@ export type GameState = {
   flash: Flash | null
   reveals: Record<string, Reveal[]>
   result: RoundResult | null
+  /** Players who stacked an opponent's card and still owe them one,
+   *  keyed by the giver, pointing at the gap to fill. */
+  pendingGive: Record<string, Ref>
   seq: number
 }
 
@@ -127,6 +136,11 @@ export type Action =
   | { type: 'lookDecide'; swap: boolean }
   | { type: 'skipPower' }
   | { type: 'skipTurn' }
+  /** Throw a matching card onto the pile. expectTop is the discard the
+   *  thrower was looking at, so a pile that changed under them is not
+   *  their mistake. */
+  | { type: 'stack'; target: Ref; expectTop: number }
+  | { type: 'give'; slot: number }
   | { type: 'nextRound' }
   | { type: 'newGame' }
 
@@ -173,6 +187,7 @@ export function createGame(code: string, hostId: string, hostName: string): Game
     flash: null,
     reveals: {},
     result: null,
+    pendingGive: {},
     seq: 0,
   }
 }
@@ -234,6 +249,7 @@ function deal(s: GameState) {
   s.result = null
   s.flash = null
   s.reveals = {}
+  s.pendingGive = {}
   s.stage = { kind: 'start' }
   s.round += 1
   s.phase = 'peek'
@@ -249,7 +265,7 @@ export function apply(prev: GameState, by: string, action: Action): GameState {
   const isHost = by === s.hostId
 
   // A private look lasts until your next move.
-  if (action.type !== 'initialPeek') delete s.reveals[by]
+  if (action.type !== 'initialPeek' && action.type !== 'stack' && action.type !== 'give') delete s.reveals[by]
 
   switch (action.type) {
     case 'start': {
@@ -332,9 +348,15 @@ export function apply(prev: GameState, by: string, action: Action): GameState {
     }
   }
 
+  // Stacking and paying back a stacked card happen out of turn.
+  if (action.type === 'stack') return stack(s, me, action.target, action.expectTop)
+  if (action.type === 'give') return give(s, me, action.slot)
+
   // Everything below is a move on your own turn.
   if (s.phase !== 'turn') fail('Not now.')
   if (s.players[s.turn]!.id !== by) fail("It isn't your turn.")
+  const owed = s.pendingGive[by]
+  if (owed) fail(`Give ${nameOf(s, owed.player)} one of your cards first.`)
   const stage = s.stage
 
   switch (action.type) {
@@ -357,6 +379,8 @@ export function apply(prev: GameState, by: string, action: Action): GameState {
 
     case 'drawDiscard': {
       if (stage.kind !== 'start') fail('You already drew.')
+      // With every card stacked away there is nothing to swap it with.
+      if (!me.hand.some((c) => c !== null)) fail('You have no cards to swap it with — draw from the deck.')
       const card = s.discard.pop() ?? fail('The discard pile is empty.')
       s.stage = { kind: 'drawn', card, from: 'discard' }
       say(s, `${me.name} took the ${cardLabel(card)} from the discard pile`)
@@ -365,6 +389,15 @@ export function apply(prev: GameState, by: string, action: Action): GameState {
 
     case 'replace': {
       if (stage.kind !== 'drawn') fail('Draw a card first.')
+      if (!me.hand.some((c) => c !== null)) {
+        // Everything was stacked away while they held the card: it simply
+        // becomes their hand.
+        const gap = me.hand.indexOf(null)
+        me.hand[gap < 0 ? me.hand.length : gap] = stage.card
+        say(s, `${me.name} had no cards left, so the drawn card goes into their hand`)
+        endTurn(s)
+        return s
+      }
       const slots = [...new Set(action.slots)].sort((a, b) => a - b)
       if (slots.length === 0) fail('Choose at least one of your cards.')
       const chosen = slots.map((i) => me.hand[i] ?? fail('No card there.'))
@@ -469,7 +502,11 @@ export function apply(prev: GameState, by: string, action: Action): GameState {
     case 'lookDecide': {
       if (stage.kind !== 'lookDecide') fail('Nothing to decide.')
       const other = s.players.find((p) => p.id === stage.other.player)!
-      if (action.swap) {
+      // Someone may have stacked one of the two while this was decided.
+      const intact = me.hand[stage.own.slot] && other.hand[stage.other.slot]
+      if (action.swap && !intact) {
+        say(s, `${me.name} wanted to swap, but one of the cards was stacked away`)
+      } else if (action.swap) {
         const mine = me.hand[stage.own.slot]!
         me.hand[stage.own.slot] = other.hand[stage.other.slot] ?? null
         other.hand[stage.other.slot] = mine
@@ -484,6 +521,63 @@ export function apply(prev: GameState, by: string, action: Action): GameState {
   }
 
   return fail('Unknown move.')
+}
+
+function stack(s: GameState, me: Player, ref: Ref, expectTop: number): GameState {
+  if (s.phase !== 'turn') fail('You can only stack during play.')
+  if (s.pendingGive[me.id]) fail(`Give ${nameOf(s, s.pendingGive[me.id]!.player)} a card first.`)
+  if (me.id === s.caboCaller) fail('Your hand is locked after calling Cabo.')
+  if (ref.player === s.caboCaller) fail('The Cabo caller’s cards are locked.')
+  const top = s.discard.at(-1)
+  if (!top || top.id !== expectTop) fail('Too slow — the pile changed.')
+  const owner = s.players.find((p) => p.id === ref.player) ?? fail('No such player.')
+  const card = owner.hand[ref.slot] ?? fail('No card there.')
+  const theirs = owner.id !== me.id
+  if (theirs && !me.hand.some((c) => c !== null)) fail('You have no card to give in return.')
+
+  const whose = theirs ? `${owner.name}’s` : 'their own'
+  if (card.rank === top.rank) {
+    owner.hand[ref.slot] = null
+    s.discard.push(card)
+    if (theirs) {
+      s.pendingGive[me.id] = ref
+      say(s, `${me.name} stacked ${whose} ${cardLabel(card)} — and owes ${owner.name} a card`)
+    } else {
+      say(s, `${me.name} stacked ${whose} ${cardLabel(card)}`)
+    }
+    s.flash = flash(s, 'replace', [ref])
+  } else {
+    // The miss is public: everyone saw the card turned over.
+    const refs = [ref]
+    let penalty = ''
+    const extra = s.deck.length > 0 || s.discard.length > 1 ? drawFromDeck(s) : null
+    if (extra) {
+      me.hand.push(extra)
+      refs.push({ player: me.id, slot: me.hand.length - 1 })
+      penalty = ' and takes a penalty card'
+    }
+    say(
+      s,
+      `${me.name} tried to stack ${whose} card, but it was the ${cardLabel(card)} — it goes back${penalty}`,
+    )
+    s.flash = flash(s, 'penalty', refs)
+  }
+  return s
+}
+
+function give(s: GameState, me: Player, slot: number): GameState {
+  const gap = s.pendingGive[me.id] ?? fail('You don’t owe anyone a card.')
+  const card = me.hand[slot] ?? fail('No card there.')
+  const to = s.players.find((p) => p.id === gap.player) ?? fail('No such player.')
+  me.hand[slot] = null
+  // The gap is normally still empty; if it was filled meanwhile, the card
+  // goes on the end rather than overwriting anything.
+  if (to.hand[gap.slot] === null) to.hand[gap.slot] = card
+  else to.hand.push(card)
+  delete s.pendingGive[me.id]
+  s.flash = flash(s, 'swap', [{ player: me.id, slot }, gap])
+  say(s, `${me.name} gave ${to.name} a card`)
+  return s
 }
 
 function target(s: GameState, by: string, ref: Ref) {
@@ -582,6 +676,7 @@ function endRound(s: GameState) {
   if (resets.length) note += `. ${resets.join(' & ')} hit exactly ${LIMIT} and drop to ${LIMIT / 2}`
 
   s.result = { hands, sums, delta, caller, kamikaze, note }
+  s.pendingGive = {}
   s.phase = s.players.some((p) => p.score > LIMIT) ? 'gameOver' : 'roundEnd'
   s.flash = null
   s.reveals = {}
@@ -646,6 +741,8 @@ export type View = {
   log: LogEntry[]
   flash: Flash | null
   result: RoundResult | null
+  /** Who still owes whom a card after stacking theirs: giver → gap. */
+  pendingGive: Record<string, Ref>
 }
 
 export function viewFor(s: GameState, viewer: string): View {
@@ -695,5 +792,6 @@ export function viewFor(s: GameState, viewer: string): View {
     log: s.log,
     flash: s.flash,
     result: s.result,
+    pendingGive: s.pendingGive ?? {},
   }
 }

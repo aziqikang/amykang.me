@@ -60,6 +60,24 @@ export function Rules() {
       </section>
 
       <section>
+        <h3>stacking</h3>
+        <p>
+          At any time during play — even on someone else’s turn — you can throw a card onto the
+          discard pile if it matches the top card’s rank. It can be one of yours or anyone
+          else’s.
+        </p>
+        <ul className={styles.bullets}>
+          <li>Your own card: it’s gone, and your hand is one card lighter.</li>
+          <li>Someone else’s card: you give them one of your cards to fill the gap.</li>
+          <li>
+            Wrong card: it’s shown to everyone and goes back, and you take a penalty card from the
+            deck.
+          </li>
+        </ul>
+        <p>The Cabo caller’s cards can’t be stacked, and the caller can’t stack.</p>
+      </section>
+
+      <section>
         <h3>calling cabo</h3>
         <p>
           Everyone else gets one last turn, and the caller’s cards are locked — nobody can spy on

@@ -138,6 +138,7 @@ export class HostRoom extends Room {
     // Everyone else is offline until they reconnect to the new peer.
     if (resume) {
       for (const p of this.state.players) p.connected = p.id === me
+      this.state.pendingGive ??= {}
     }
     this.set({ view: viewFor(this.state, me) })
     this.claim()
