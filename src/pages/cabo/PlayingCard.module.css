@@ -25,9 +25,9 @@
 }
 
 .xs { --w: clamp(1.7rem, 6vw, 2.2rem); }
-.sm { --w: clamp(2.2rem, 8vw, 3rem); }
+.sm { --w: var(--card-w-sm, clamp(2.2rem, 8vw, 3rem)); }
 .md { --w: clamp(3.2rem, 13vw, 4.4rem); }
-.lg { --w: clamp(4rem, 19vw, 5.6rem); }
+.lg { --w: var(--card-w-lg, clamp(4rem, 19vw, 5.6rem)); }
 
 /* ── Back: white border, red lattice, a thin inner frame ── */
 .back {
@@ -137,32 +137,6 @@
 .selected:hover {
   transform: translateY(-8px);
   box-shadow: 0 0 0 3px #fbf8f1, 0 0 0 6px var(--cabo-ring, #e8b866);
-}
-
-.private::after {
-  content: 'only you';
-  position: absolute;
-  bottom: 5%;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 0.1em 0.45em;
-  border-radius: 999px;
-  background: #22201d;
-  font-family: var(--font-body);
-  font-size: 0.5625rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  color: var(--cabo-ring, #e8b866);
-}
-
-.xs.private::after,
-.sm.private::after {
-  content: '';
-  bottom: 6%;
-  width: 0.4rem;
-  height: 0.4rem;
-  padding: 0;
 }
 
 /* Everyone sees cards move, even when nobody sees what they are. */

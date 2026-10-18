@@ -84,7 +84,7 @@ export function typingIn(e: KeyboardEvent) {
 const KEYS: [string, string][] = [
   ['D', 'draw from the deck'],
   ['T', 'take the top discard'],
-  ['1 – 9', 'tap your card with that number (shown on your cards)'],
+  ['1 – 9', 'tap your card with that number (shown under each card)'],
   ['Enter', 'confirm — swap in, swap / look at the chosen pair, ready, deal'],
   ['X', 'discard the drawn card (and use its power)'],
   ['S', 'stack the card under the pointer onto the pile'],
