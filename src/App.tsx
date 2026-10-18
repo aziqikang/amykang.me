@@ -17,6 +17,14 @@ import { useSystemThemeSync } from '@/features/theme/theme'
  */
 const EntryPage = lazy(() => import('@/pages/EntryPage'))
 
+/**
+ * Cabo is a game, not a page of the site: it brings its own full-screen
+ * table and none of the site chrome. Lazy for the same reason as above —
+ * it carries PeerJS (WebRTC networking) that no one browsing the
+ * portfolio needs to download.
+ */
+const CaboApp = lazy(() => import('@/pages/cabo/CaboApp'))
+
 // Photography sits under the art tab rather than in NAV: the sub-tab row
 // inside the page switches between them, so these are destinations.
 //
@@ -93,6 +101,14 @@ export default function App() {
 
   // Keep following the OS palette until the visitor flips it themselves.
   useSystemThemeSync()
+
+  if (location.pathname === '/play-cabo' || location.pathname.startsWith('/play-cabo/')) {
+    return (
+      <Suspense fallback={null}>
+        <CaboApp />
+      </Suspense>
+    )
+  }
 
   return (
     /* reducedMotion="user" makes every Motion animation in the app honor

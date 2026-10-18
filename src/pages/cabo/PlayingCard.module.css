@@ -1,0 +1,185 @@
+/* Flat cards: no drop shadows, no gradients pretending to be light.
+   Depth comes only from the outline against the felt. */
+.card {
+  --paper: #fbf8f1;
+  --suit-black: #22201d;
+  --suit-red: #b3321c;
+  --back: #9c2f22;
+  --back-line: rgba(251, 248, 241, 0.32);
+
+  position: relative;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: var(--w);
+  aspect-ratio: 5 / 7;
+  border-radius: calc(var(--w) * 0.09);
+  font-family: var(--font-display);
+  line-height: 1;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out);
+}
+
+.xs { --w: clamp(1.7rem, 6vw, 2.2rem); }
+.sm { --w: clamp(2.2rem, 8vw, 3rem); }
+.md { --w: clamp(3.2rem, 13vw, 4.4rem); }
+.lg { --w: clamp(4rem, 19vw, 5.6rem); }
+
+/* ── Back: white border, red lattice, a thin inner frame ── */
+.back {
+  background: var(--paper);
+  padding: calc(var(--w) * 0.07);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.lattice {
+  width: 100%;
+  height: 100%;
+  border-radius: calc(var(--w) * 0.04);
+  background-color: var(--back);
+  background-image:
+    repeating-linear-gradient(45deg, var(--back-line) 0 1px, transparent 1px calc(var(--w) * 0.09)),
+    repeating-linear-gradient(-45deg, var(--back-line) 0 1px, transparent 1px calc(var(--w) * 0.09));
+  outline: 1px solid var(--back);
+  outline-offset: calc(var(--w) * 0.025);
+}
+
+/* ── Face ──────────────────────────────────────────────── */
+.face {
+  background: var(--paper);
+  color: var(--suit-black);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.red {
+  color: var(--suit-red);
+}
+
+.corner {
+  position: absolute;
+  top: calc(var(--w) * 0.07);
+  left: calc(var(--w) * 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: calc(var(--w) * 0.23);
+  letter-spacing: -0.04em;
+}
+
+.corner span {
+  font-size: 0.8em;
+  margin-top: 0.05em;
+}
+
+.cornerFlip {
+  top: auto;
+  left: auto;
+  bottom: calc(var(--w) * 0.07);
+  right: calc(var(--w) * 0.08);
+  transform: rotate(180deg);
+}
+
+.pip {
+  font-size: calc(var(--w) * 0.44);
+}
+
+.court {
+  font-size: calc(var(--w) * 0.5);
+}
+
+.xs .cornerFlip,
+.sm .cornerFlip {
+  display: none;
+}
+
+.xs .pip,
+.xs .court,
+.sm .pip,
+.sm .court {
+  margin: 30% 0 0 18%;
+  font-size: calc(var(--w) * 0.4);
+}
+
+/* ── States ────────────────────────────────────────────── */
+.empty {
+  border: 1.5px dashed rgba(243, 238, 227, 0.28);
+}
+
+.emptyLabel {
+  padding: 0 0.3em;
+  font-family: var(--font-body);
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+  color: rgba(243, 238, 227, 0.6);
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.active {
+  box-shadow: 0 0 0 3px var(--cabo-ring, #e8b866);
+}
+
+@media (hover: hover) {
+  .clickable:hover {
+    transform: translateY(-3px);
+  }
+}
+
+.selected,
+.selected:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 0 0 3px #fbf8f1, 0 0 0 6px var(--cabo-ring, #e8b866);
+}
+
+.private::after {
+  content: 'only you';
+  position: absolute;
+  bottom: 5%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.1em 0.45em;
+  border-radius: 999px;
+  background: #22201d;
+  font-family: var(--font-body);
+  font-size: 0.5625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--cabo-ring, #e8b866);
+}
+
+.xs.private::after,
+.sm.private::after {
+  content: '';
+  bottom: 6%;
+  width: 0.4rem;
+  height: 0.4rem;
+  padding: 0;
+}
+
+/* Everyone sees cards move, even when nobody sees what they are. */
+.flash_swap,
+.flash_replace,
+.flash_penalty,
+.flash_look {
+  animation: pulse 1.4s var(--ease-out) 2;
+}
+
+.flash_swap { --pulse: #9aa6e8; }
+.flash_replace { --pulse: #7fd6c6; }
+.flash_penalty { --pulse: #f2a07b; }
+.flash_look { --pulse: #d79bc4; }
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 var(--pulse); }
+  70% { box-shadow: 0 0 0 12px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
