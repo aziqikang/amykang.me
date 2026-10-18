@@ -9,7 +9,7 @@ import type { ToGuest, ToHost } from './protocol'
  */
 
 /** The deployed game server. Set VITE_CABO_SERVER to override. */
-const PROD_SERVER = ''
+const PROD_SERVER = 'wss://cabo-server.cabo-server.workers.dev'
 
 function serverUrl(): string {
   const env = import.meta.env.VITE_CABO_SERVER as string | undefined
