@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type PointerEvent, type ReactNode, type RefObject } from 'react'
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode, type RefObject } from 'react'
 import {
   cardLabel,
   INITIAL_PEEKS,
@@ -59,11 +59,9 @@ export function Table({ view, send, error, logOpen, toggleLog }: Props) {
   const iHaveCards = me.hand.some((c) => c !== null)
   const pileRef = useRef<HTMLDivElement>(null)
 
-  // Hands are laid out in columns of two, but number keys read like a
-  // page: 1 2 across the top, then 3 4 along the bottom.
-  const cols = Math.ceil(me.hand.length / 2)
-  const keyOf = (slot: number) => (slot % 2 === 0 ? slot / 2 : cols + (slot - 1) / 2) + 1
-  const slotOfKey = (n: number) => me.hand.findIndex((_, i) => keyOf(i) === n)
+  // Every hand is one row numbered from 1, so the number under a card, the
+  // key that taps it and the "card 3" in the log all agree.
+  const slotOfKey = (n: number) => (n - 1 < me.hand.length ? n - 1 : -1)
   const hovered = useRef<Ref | null>(null)
 
   // ── Selection, reset whenever the move being made changes ──
@@ -150,6 +148,18 @@ export function Table({ view, send, error, logOpen, toggleLog }: Props) {
 
   const flashFor = (player: string, slot: number) =>
     view.flash?.refs.some((r) => r.player === player && r.slot === slot) ? view.flash.kind : null
+
+  /** Says out loud which card someone looked at — the card, not its face. */
+  const lookTag = (p: PlayerView, slot: number): string | undefined => {
+    if (showAll) return undefined
+    if (view.phase === 'peek') {
+      return p.id !== view.me && p.peekedSlots?.includes(slot) ? 'peeked' : undefined
+    }
+    const f = view.flash
+    if (f?.kind !== 'look' || !f.by || !f.refs.some((r) => r.player === p.id && r.slot === slot)) return undefined
+    if (f.by === view.me) return 'you looked'
+    return `${view.players.find((q) => q.id === f.by)?.name ?? 'someone'} looked`
+  }
 
   // Seat everyone else in turn order, starting from whoever sits after you.
   const others = useMemo(() => {
@@ -301,10 +311,9 @@ export function Table({ view, send, error, logOpen, toggleLog }: Props) {
         <div className={styles.opponents}>
           {others.map((p) => (
             <Seat key={p.id} player={p} view={view}>
-              <Hand>
+              <Hand size={p.hand.length}>
                 {p.hand.map((slot, i) => {
-                  if (slot === null)
-                    return <EmptySlot key={i} size="sm" label={gapLabel(view, p.id, i)} />
+                  if (slot === null) return <Gap key={i} size="sm" num={i + 1} label={gapLabel(view, p.id, i)} />
                   const ref = { player: p.id, slot: i }
                   const face = faceOf(p, i)
                   return (
@@ -317,6 +326,8 @@ export function Table({ view, send, error, logOpen, toggleLog }: Props) {
                       selected={target?.player === p.id && target.slot === i}
                       flash={flashFor(p.id, i)}
                       label={`${p.name}'s card ${i + 1}`}
+                      num={i + 1}
+                      tag={lookTag(p, i)}
                       title={stackFor(ref) ? stackTitle : undefined}
                       onTap={otherTap(p, i)}
                       onStack={stackFor(ref)}
@@ -336,17 +347,38 @@ export function Table({ view, send, error, logOpen, toggleLog }: Props) {
           ) : (
             <div className={styles.piles}>
               <Pile label={`deck · ${view.deckCount}`}>
-                <PlayingCard
-                  card={null}
-                  size="md"
-                  active={myTurn && stage.kind === 'start' && !owe}
-                  label="Draw from the deck"
-                  title="Draw (D)"
-                  onClick={myTurn && stage.kind === 'start' && !owe ? () => send({ type: 'drawDeck' }) : undefined}
-                />
+                <div className={styles.stack}>
+                  {/* Flat card edges peeking out below: thicker while the deck is full. */}
+                  {Array.from({ length: Math.min(3, Math.ceil(view.deckCount / 12)) }, (_, k) => (
+                    <span key={k} className={styles.stackEdge} style={{ '--k': k + 1 } as CSSProperties} />
+                  ))}
+                  <PlayingCard
+                    card={null}
+                    size="md"
+                    active={myTurn && stage.kind === 'start' && !owe}
+                    label="Draw from the deck"
+                    title="Draw (D)"
+                    onClick={myTurn && stage.kind === 'start' && !owe ? () => send({ type: 'drawDeck' }) : undefined}
+                  />
+                </div>
               </Pile>
               <Pile label="discard" pileRef={pileRef} hint={view.phase === 'turn' ? 'stack here' : undefined}>
                 {view.discardTop ? (
+                  <div
+                    className={styles.fanned}
+                    style={{ '--fan': Math.max(0, (view.discardRecent?.length ?? 1) - 1) } as CSSProperties}
+                  >
+                  {/* The three cards under the top, fanned left so their corners show. */}
+                  {(view.discardRecent ?? []).slice(0, -1).map((c, k, under) => (
+                    <PlayingCard
+                      key={c.id}
+                      className={styles.fanCardUnder}
+                      style={{ '--d': under.length - k } as CSSProperties}
+                      card={c}
+                      size="md"
+                      label={`Under the discard: ${cardLabel(c)}`}
+                    />
+                  ))}
                   <PlayingCard
                     key={view.discardTop.id}
                     className={styles.landed}
@@ -361,6 +393,7 @@ export function Table({ view, send, error, logOpen, toggleLog }: Props) {
                         : undefined
                     }
                   />
+                  </div>
                 ) : (
                   <EmptySlot size="md" />
                 )}
@@ -401,15 +434,24 @@ export function Table({ view, send, error, logOpen, toggleLog }: Props) {
             {showAll && !isHost && (
               <p className={styles.muted}>Waiting for the host{view.phase === 'roundEnd' ? ' to deal' : ''}…</p>
             )}
-            {!showAll && view.log.length > 0 && <p className={styles.ticker}>{view.log.at(-1)!.text}</p>}
+            {!showAll && view.log.length > 0 && (
+              <ol className={styles.recent} aria-label="Last moves">
+                {view.log
+                  .slice(-3)
+                  .reverse()
+                  .map((e) => (
+                    <li key={e.seq}>{e.text}</li>
+                  ))}
+              </ol>
+            )}
           </div>
         </div>
 
         <div className={styles.mine}>
           <Seat player={me} view={view} you>
-            <Hand big>
+            <Hand big size={me.hand.length}>
               {me.hand.map((slot, i) => {
-                if (slot === null) return <EmptySlot key={i} size="lg" label={gapLabel(view, me.id, i)} />
+                if (slot === null) return <Gap key={i} size="lg" num={i + 1} label={gapLabel(view, me.id, i)} />
                 const ref = { player: me.id, slot: i }
                 const face = faceOf(me, i)
                 const tap = ownTap(i)
@@ -424,8 +466,9 @@ export function Table({ view, send, error, logOpen, toggleLog }: Props) {
                     selected={sel.includes(i)}
                     flash={flashFor(me.id, i)}
                     label={`Your card ${i + 1}`}
-                    badge={keyOf(i) <= 9 ? String(keyOf(i)) : undefined}
-                    title={[tap ? `press ${keyOf(i)}` : '', stack ? stackTitle : ''].filter(Boolean).join(' · ') || undefined}
+                    num={i + 1}
+                    tag={lookTag(me, i)}
+                    title={[tap && i < 9 ? `press ${i + 1}` : '', stack ? stackTitle : ''].filter(Boolean).join(' · ') || undefined}
                     onTap={tap}
                     onStack={stack}
                     onHover={(on) => (hovered.current = on ? ref : null)}
@@ -547,7 +590,10 @@ type TableCardProps = {
   privateLook: boolean
   label: string
   title?: string
-  badge?: string
+  /** Position in the hand, shown under the card. */
+  num: number
+  /** Who looked at this card, shown above it. */
+  tag?: string
   onTap?: () => void
   onStack?: () => void
   onHover: (on: boolean) => void
@@ -562,7 +608,7 @@ type TableCardProps = {
  * window before acting, so the two never both fire.
  */
 function TableCard(props: TableCardProps) {
-  const { onTap, onStack, pileRef, onHover, badge, ...card } = props
+  const { onTap, onStack, pileRef, onHover, num, tag, ...card } = props
   const [offset, setOffset] = useState<{ x: number; y: number } | null>(null)
   const g = useRef({
     start: null as { x: number; y: number; id: number } | null,
@@ -675,7 +721,16 @@ function TableCard(props: TableCardProps) {
             : undefined
         }
       />
-      {badge && <kbd className={styles.slotKey}>{badge}</kbd>}
+      {tag ? (
+        <span className={styles.lookTag}>{tag}</span>
+      ) : (
+        card.privateLook && (
+          <span className={styles.lookTag} data-private>
+            only you
+          </span>
+        )
+      )}
+      <span className={styles.slotNum}>{num}</span>
     </div>
   )
 }
@@ -725,8 +780,22 @@ function showSum(view: View, id: string) {
   return sum === undefined ? null : <span className={styles.chip}>hand {sum}</span>
 }
 
-function Hand({ big, children }: { big?: boolean; children: ReactNode }) {
-  return <div className={`${styles.hand} ${big ? styles.handBig : ''}`}>{children}</div>
+/** An empty position: keeps its place and its number in the row. */
+function Gap({ size, num, label }: { size: CardSize; num: number; label?: string }) {
+  return (
+    <div className={styles.slot}>
+      <EmptySlot size={size} label={label} />
+      <span className={styles.slotNum}>{num}</span>
+    </div>
+  )
+}
+
+function Hand({ big, size, children }: { big?: boolean; size: number; children: ReactNode }) {
+  return (
+    <div className={`${styles.hand} ${big ? styles.handBig : ''}`} style={{ '--n': size } as CSSProperties}>
+      {children}
+    </div>
+  )
 }
 
 function Pile({

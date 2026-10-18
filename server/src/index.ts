@@ -78,7 +78,7 @@ export class Room extends DurableObject<Env> {
     const done = new Response(null, { status: 101, webSocket: client })
     const reject = (reason: Extract<ToGuest, { t: 'rejected' }>['reason'], message: string) => {
       send(server, { t: 'rejected', reason, message })
-      server.close(4001, reason)
+      hangUp(server)
       return done
     }
 
@@ -107,7 +107,7 @@ export class Room extends DurableObject<Env> {
     const old = this.sockets.get(id)
     if (old && old !== server) {
       send(old, { t: 'replaced' })
-      old.close(4000, 'replaced')
+      hangUp(old)
     }
     this.sockets.set(id, server)
     const pending = this.grace.get(id)
@@ -147,7 +147,7 @@ export class Room extends DurableObject<Env> {
       this.sockets.delete(action.player)
       if (gone) {
         send(gone, { t: 'rejected', reason: 'rejected', message: 'The host removed you from the table.' })
-        gone.close(4001, 'removed')
+        hangUp(gone)
       }
     }
     this.broadcast()
@@ -186,6 +186,25 @@ export class Room extends DurableObject<Env> {
     if (!this.state) return
     for (const [id, ws] of this.sockets) send(ws, { t: 'state', view: viewFor(this.state, id) })
   }
+}
+
+/**
+ * Ends a connection the server is done with. The client closes on its own
+ * as soon as it reads why, which is the clean path; the server only closes
+ * as a fallback for a client that never does. (A server-side close makes
+ * workerd log "Network connection lost" against the original request. It
+ * is noise — the room and everyone else's connection carry on — but there
+ * is no reason to produce it every time.)
+ */
+function hangUp(ws: WebSocket) {
+  setTimeout(() => {
+    if (ws.readyState !== 1) return // OPEN; workerd has no WebSocket.OPEN constant
+    try {
+      ws.close(4001, 'done')
+    } catch {
+      // Already going away.
+    }
+  }, 5000)
 }
 
 function send(ws: WebSocket, msg: ToGuest) {

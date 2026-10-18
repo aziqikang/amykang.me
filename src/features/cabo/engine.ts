@@ -79,7 +79,13 @@ export type Stage =
 export type LogEntry = { seq: number; text: string }
 
 /** Something every player should notice: cards that just moved or were looked at. */
-export type Flash = { seq: number; refs: Ref[]; kind: 'swap' | 'look' | 'replace' | 'penalty' }
+export type Flash = {
+  seq: number
+  refs: Ref[]
+  kind: 'swap' | 'look' | 'replace' | 'penalty'
+  /** Who caused it, so a look can be labelled with the looker's name. */
+  by?: string
+}
 
 /** A card a player is privately looking at. Keyed to the card id so it
  *  stops showing the moment that card moves. */
@@ -421,8 +427,8 @@ export function apply(prev: GameState, by: string, action: Action): GameState {
         say(
           s,
           chosen.length === 1
-            ? `${me.name} swapped a card in, discarding the ${out}`
-            : `${me.name} matched ${chosen.length} cards (${out}) and replaced them with one`,
+            ? `${me.name} swapped a card into their ${pos(slots[0]!)}, discarding the ${out}`
+            : `${me.name} matched ${chosen.length} cards (${out}) and replaced them with one in their ${pos(slots[0]!)}`,
         )
         s.flash = flash(s, 'replace', slots.map((slot) => ({ player: by, slot })))
       } else {
@@ -431,7 +437,7 @@ export function apply(prev: GameState, by: string, action: Action): GameState {
         me.hand.push(stage.card)
         say(
           s,
-          `${me.name} tried to match ${chosen.map(cardLabel).join(', ')} — no match, so they keep them and take the drawn card as a penalty`,
+          `${me.name} tried to match ${chosen.map(cardLabel).join(', ')} — no match, so they keep them and take the drawn card as a penalty (their ${pos(me.hand.length - 1)})`,
         )
         s.flash = flash(s, 'penalty', [{ player: by, slot: me.hand.length - 1 }])
       }
@@ -465,8 +471,8 @@ export function apply(prev: GameState, by: string, action: Action): GameState {
       if (stage.kind !== 'power' || stage.power !== 'peek') fail('That power is not available.')
       const card = me.hand[action.slot] ?? fail('No card there.')
       s.reveals[by] = [{ ref: { player: by, slot: action.slot }, card }]
-      s.flash = flash(s, 'look', [{ player: by, slot: action.slot }])
-      say(s, `${me.name} peeked at one of their own cards`)
+      s.flash = flash(s, 'look', [{ player: by, slot: action.slot }], by)
+      say(s, `${me.name} peeked at their ${pos(action.slot)}`)
       endTurn(s)
       return s
     }
@@ -475,8 +481,8 @@ export function apply(prev: GameState, by: string, action: Action): GameState {
       if (stage.kind !== 'power' || stage.power !== 'spy') fail('That power is not available.')
       const { player, card } = target(s, by, action.target)
       s.reveals[by] = [{ ref: action.target, card }]
-      s.flash = flash(s, 'look', [action.target])
-      say(s, `${me.name} spied on one of ${player.name}'s cards`)
+      s.flash = flash(s, 'look', [action.target], by)
+      say(s, `${me.name} spied on ${player.name}'s ${pos(action.target.slot)}`)
       endTurn(s)
       return s
     }
@@ -488,7 +494,7 @@ export function apply(prev: GameState, by: string, action: Action): GameState {
       me.hand[action.own] = card
       player.hand[action.target.slot] = mine
       s.flash = flash(s, 'swap', [{ player: by, slot: action.own }, action.target])
-      say(s, `${me.name} blindly swapped a card with ${player.name}`)
+      say(s, `${me.name} blindly swapped their ${pos(action.own)} with ${player.name}'s ${pos(action.target.slot)}`)
       endTurn(s)
       return s
     }
@@ -503,8 +509,8 @@ export function apply(prev: GameState, by: string, action: Action): GameState {
         { ref: action.target, card },
       ]
       s.stage = { kind: 'lookDecide', own, other: action.target }
-      s.flash = flash(s, 'look', [own, action.target])
-      say(s, `${me.name} is looking at one of their cards and one of ${player.name}'s`)
+      s.flash = flash(s, 'look', [own, action.target], by)
+      say(s, `${me.name} is looking at their ${pos(action.own)} and ${player.name}'s ${pos(action.target.slot)}`)
       return s
     }
 
@@ -520,7 +526,7 @@ export function apply(prev: GameState, by: string, action: Action): GameState {
         me.hand[stage.own.slot] = other.hand[stage.other.slot] ?? null
         other.hand[stage.other.slot] = mine
         s.flash = flash(s, 'swap', [stage.own, stage.other])
-        say(s, `${me.name} swapped those two cards`)
+        say(s, `${me.name} swapped their ${pos(stage.own.slot)} with ${other.name}'s ${pos(stage.other.slot)}`)
       } else {
         say(s, `${me.name} left both cards where they were`)
       }
@@ -544,15 +550,15 @@ function stack(s: GameState, me: Player, ref: Ref, expectTop: number): GameState
   const theirs = owner.id !== me.id
   if (theirs && !me.hand.some((c) => c !== null)) fail('You have no card to give in return.')
 
-  const whose = theirs ? `${owner.name}’s` : 'their own'
+  const whose = theirs ? `${owner.name}’s ${pos(ref.slot)}` : `their ${pos(ref.slot)}`
   if (card.rank === top.rank) {
     owner.hand[ref.slot] = null
     s.discard.push(card)
     if (theirs) {
       s.pendingGive[me.id] = ref
-      say(s, `${me.name} stacked ${whose} ${cardLabel(card)} — and owes ${owner.name} a card`)
+      say(s, `${me.name} stacked ${whose} (${cardLabel(card)}) — and owes ${owner.name} a card`)
     } else {
-      say(s, `${me.name} stacked ${whose} ${cardLabel(card)}`)
+      say(s, `${me.name} stacked ${whose} (${cardLabel(card)})`)
     }
     s.flash = flash(s, 'replace', [ref])
   } else {
@@ -567,7 +573,7 @@ function stack(s: GameState, me: Player, ref: Ref, expectTop: number): GameState
     }
     say(
       s,
-      `${me.name} tried to stack ${whose} card, but it was the ${cardLabel(card)} — it goes back${penalty}`,
+      `${me.name} tried to stack ${whose}, but it was the ${cardLabel(card)} — it goes back${penalty}`,
     )
     s.flash = flash(s, 'penalty', refs)
   }
@@ -585,7 +591,7 @@ function give(s: GameState, me: Player, slot: number): GameState {
   else to.hand.push(card)
   delete s.pendingGive[me.id]
   s.flash = flash(s, 'swap', [{ player: me.id, slot }, gap])
-  say(s, `${me.name} gave ${to.name} a card`)
+  say(s, `${me.name} gave ${to.name} their ${pos(slot)}`)
   return s
 }
 
@@ -706,8 +712,11 @@ function say(s: GameState, text: string) {
   if (s.log.length > LOG_LENGTH) s.log.splice(0, s.log.length - LOG_LENGTH)
 }
 
-function flash(s: GameState, kind: Flash['kind'], refs: Ref[]): Flash {
-  return { seq: s.seq + 1, refs, kind }
+/** "card 3": hands are one row, numbered from 1 on screen. */
+const pos = (slot: number) => `card ${slot + 1}`
+
+function flash(s: GameState, kind: Flash['kind'], refs: Ref[], by?: string): Flash {
+  return by ? { seq: s.seq + 1, refs, kind, by } : { seq: s.seq + 1, refs, kind }
 }
 
 function clone<T>(v: T): T {
@@ -726,6 +735,8 @@ export type PlayerView = {
   connected: boolean
   ready: boolean
   peeked: number
+  /** Which slots they chose in the opening peek — public, like at a real table. */
+  peekedSlots: number[]
   hand: SlotView[]
 }
 
@@ -743,6 +754,8 @@ export type View = {
   players: PlayerView[]
   deckCount: number
   discardTop: Card | null
+  /** The top few discards, oldest first, for fanning out the pile. */
+  discardRecent: Card[]
   turn: string | null
   stage: StageView
   caboCaller: string | null
@@ -786,6 +799,7 @@ export function viewFor(s: GameState, viewer: string): View {
       connected: p.connected,
       ready: p.ready,
       peeked: p.peeked.length,
+      peekedSlots: p.peeked,
       hand: p.hand.map((c, slot) =>
         c === null
           ? null
@@ -794,6 +808,7 @@ export function viewFor(s: GameState, viewer: string): View {
     })),
     deckCount: s.deck.length,
     discardTop: s.discard.at(-1) ?? null,
+    discardRecent: s.discard.slice(-4),
     turn: s.phase === 'turn' ? s.players[s.turn]!.id : null,
     stage,
     caboCaller: s.caboCaller,

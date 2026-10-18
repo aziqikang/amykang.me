@@ -140,7 +140,6 @@
   .primary kbd,
   .secondary kbd,
   .cabo kbd,
-  .slotKey,
   .textButton kbd {
     display: none;
   }
@@ -560,24 +559,77 @@
   background: #2a1f10;
 }
 
-/* Two rows, growing to the right: the starting 2×2 square, with any
-   penalty cards extending it the way they would on a real table. */
+/* One row per hand, numbered from 1 under each card: the same order for
+   every player, so "Ben's card 3" means the same card to everyone. Penalty
+   cards join the end of the row. */
 .hand {
-  display: grid;
-  grid-auto-flow: column;
-  grid-template-rows: auto auto;
+  --gap: 0.35rem;
+  display: flex;
   justify-content: center;
-  gap: 0.4rem;
+  gap: var(--gap);
+  /* Never wrap: a hand that grows shrinks its cards to stay one row.
+     The share is of the viewport, which is what bounds the table. */
+  --card-w-sm: min(
+    clamp(2.2rem, 8vw, 3rem),
+    calc((min(100vw, 66rem) / 2 - 2rem - (var(--n) - 1) * var(--gap)) / var(--n))
+  );
 }
 
 .handBig {
-  gap: clamp(0.5rem, 2vw, 0.85rem);
+  --gap: clamp(0.45rem, 2vw, 0.8rem);
+  --card-w-lg: min(
+    clamp(4rem, 19vw, 5.6rem),
+    calc((100vw - 4.5rem - (var(--n) - 1) * var(--gap)) / var(--n))
+  );
 }
 
 .slot {
   position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 0.2rem;
+  padding-top: 0.55rem;
   border-radius: 0.5rem;
   transition: transform var(--dur-base) var(--ease-out);
+}
+
+.slotNum {
+  font-size: 0.625rem;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--chalk-faint);
+}
+
+/* "Amy looked": which card was looked at, for everyone to see. Your own
+   private looks wear the same tag in gold, reading "only you". */
+.lookTag {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 2;
+  transform: translate(-50%, -30%);
+  padding: 0.08rem 0.45rem;
+  border-radius: 999px;
+  background: #d79bc4;
+  color: #2a1426;
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: tagIn var(--dur-base) var(--ease-out);
+}
+
+.lookTag[data-private] {
+  background: var(--gold);
+  color: #2a1f10;
+}
+
+@keyframes tagIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 10%);
+  }
 }
 
 /* Throwable cards keep the page from scrolling under a flick. */
@@ -588,24 +640,6 @@
 .dragging {
   z-index: 30;
   transition: none;
-}
-
-.slotKey {
-  position: absolute;
-  top: 0.3rem;
-  right: 0.3rem;
-  pointer-events: none;
-  font-size: 0.625rem !important;
-  background: rgba(0, 0, 0, 0.35) !important;
-  color: var(--chalk) !important;
-  opacity: 0;
-  transition: opacity var(--dur-fast);
-}
-
-@media (hover: hover) {
-  .handBig:hover .slotKey {
-    opacity: 0.9;
-  }
 }
 
 .middle {
@@ -665,6 +699,44 @@
   }
 }
 
+.piles {
+  --cw: clamp(3.2rem, 13vw, 4.4rem); /* the md card width */
+}
+
+/* The deck: flat card edges stepping out from under the top card. */
+.stack {
+  position: relative;
+  display: grid;
+  isolation: isolate;
+}
+
+.stackEdge {
+  position: absolute;
+  inset: 0;
+  z-index: calc(-1 * var(--k));
+  border-radius: calc(var(--cw) * 0.09);
+  background: #fbf8f1;
+  border: 1px solid rgba(0, 0, 0, 0.22);
+  transform: translate(calc(var(--k) * 2.5px), calc(var(--k) * 2.5px));
+}
+
+/* The discard: the cards underneath fan out to the left, far enough that
+   each one's corner index shows. */
+.fanned {
+  display: grid;
+  margin-left: calc(var(--fan) * var(--cw) * 0.24);
+}
+
+.fanned > * {
+  grid-area: 1 / 1;
+}
+
+.fanCardUnder {
+  transform: translateX(calc(var(--d) * -24%)) rotate(calc(var(--d) * -5deg));
+  transform-origin: bottom center;
+  pointer-events: none;
+}
+
 .prompt {
   display: grid;
   gap: var(--space-3);
@@ -682,10 +754,21 @@
   gap: var(--space-2);
 }
 
-.ticker {
-  color: var(--chalk-faint);
+.recent {
+  display: grid;
+  gap: 0.15rem;
   font-size: var(--text-xs);
   line-height: 1.4;
+  color: var(--chalk-soft);
+}
+
+/* Newest first, older moves fading back. */
+.recent li:nth-child(2) {
+  opacity: 0.7;
+}
+
+.recent li:nth-child(3) {
+  opacity: 0.45;
 }
 
 .mine {
